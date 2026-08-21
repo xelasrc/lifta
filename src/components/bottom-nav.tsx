@@ -18,8 +18,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
-      <div className="mx-auto flex max-w-sm items-center overflow-hidden rounded-full bg-[#191919]">
+    <nav className="fixed inset-x-0 bottom-0 z-10 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+      <div className="mx-auto flex max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
         {tabs.map(({ href, label, Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -27,11 +27,11 @@ export function BottomNav() {
               key={href}
               href={href}
               aria-label={label}
-              className={`flex flex-1 items-center justify-center rounded-xl py-5 text-white transition-colors ${
+              className={`flex flex-1 items-center justify-center rounded-xl py-5.5 text-white transition-colors ${
                 active ? "bg-accent" : "bg-transparent"
               }`}
             >
-              <Icon className="h-7 w-7" />
+              <Icon className="h-11.5 w-11.5" />
             </Link>
           );
         })}
