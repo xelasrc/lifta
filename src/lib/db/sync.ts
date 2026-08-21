@@ -3,25 +3,51 @@ import { drainSyncQueue } from "./sync-queue";
 import type { Exercise, SyncOperation, Workout, WorkoutSet } from "./schema";
 
 let syncing = false;
+let retryTimer: ReturnType<typeof setTimeout> | null = null;
+let retryCount = 0;
+
+const MIN_RETRY_DELAY_MS = 3000;
+const MAX_RETRY_DELAY_MS = 30000;
 
 export function triggerSync() {
   if (syncing) return;
   if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
+  if (retryTimer) {
+    clearTimeout(retryTimer);
+    retryTimer = null;
+  }
+
   syncing = true;
-  syncPendingChanges().finally(() => {
-    syncing = false;
-  });
+  syncPendingChanges()
+    .then((ok) => {
+      if (ok) {
+        retryCount = 0;
+        return;
+      }
+      // Sync can fail transiently (e.g. a freshly-issued auth token briefly
+      // rejected right after sign-in) - retry automatically instead of only
+      // on the next unrelated write, mount, or reconnect.
+      const delay = Math.min(MIN_RETRY_DELAY_MS * 2 ** retryCount, MAX_RETRY_DELAY_MS);
+      retryCount += 1;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        triggerSync();
+      }, delay);
+    })
+    .finally(() => {
+      syncing = false;
+    });
 }
 
-async function syncPendingChanges() {
+async function syncPendingChanges(): Promise<boolean> {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) return true;
 
-  await drainSyncQueue(async (entry) => {
+  const result = await drainSyncQueue(async (entry) => {
     if (entry.table === "workouts") {
       await syncWorkout(entry.operation, entry.payload as Workout, user.id);
     } else if (entry.table === "exercises") {
@@ -30,6 +56,7 @@ async function syncPendingChanges() {
       await syncWorkoutSet(entry.operation, entry.payload as WorkoutSet | { id: string }, user.id);
     }
   });
+  return result.ok;
 }
 
 async function syncWorkout(operation: SyncOperation, payload: Workout, userId: string) {

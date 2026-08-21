@@ -22,7 +22,7 @@ export async function drainSyncQueue(
     operation: SyncOperation;
     payload: unknown;
   }) => Promise<void>,
-) {
+): Promise<{ ok: boolean }> {
   const db = await getDB();
   const entries = await db.getAllFromIndex("sync_queue", "by-createdAt");
 
@@ -31,9 +31,10 @@ export async function drainSyncQueue(
       await handler(entry);
       await db.delete("sync_queue", entry.id);
     } catch {
-      // Leave failed entries queued; retry on the next sync pass
-      // (e.g. next "online" event) instead of dropping local writes.
-      break;
+      // Leave failed entries queued; the caller schedules a retry instead of
+      // dropping local writes.
+      return { ok: false };
     }
   }
+  return { ok: true };
 }
