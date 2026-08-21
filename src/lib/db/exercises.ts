@@ -1,5 +1,6 @@
 import { getDB } from "./index";
 import { enqueueSync } from "./sync-queue";
+import { triggerSync } from "./sync";
 import { createClient } from "@/lib/supabase/client";
 import type { Exercise } from "./schema";
 
@@ -53,5 +54,6 @@ export async function createExercise(name: string): Promise<Exercise> {
   };
   await db.put("exercises", exercise);
   await enqueueSync("exercises", "insert", exercise);
+  triggerSync();
   return exercise;
 }

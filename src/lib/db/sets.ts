@@ -1,5 +1,6 @@
 import { getDB } from "./index";
 import { enqueueSync } from "./sync-queue";
+import { triggerSync } from "./sync";
 import type { WorkoutSet } from "./schema";
 
 export async function listSetsForWorkout(workoutId: string): Promise<WorkoutSet[]> {
@@ -29,6 +30,7 @@ export async function createSet(input: {
   };
   await db.add("workout_sets", set);
   await enqueueSync("workout_sets", "insert", set);
+  triggerSync();
   return set;
 }
 
@@ -36,4 +38,5 @@ export async function deleteSet(id: string): Promise<void> {
   const db = await getDB();
   await db.delete("workout_sets", id);
   await enqueueSync("workout_sets", "delete", { id });
+  triggerSync();
 }

@@ -1,5 +1,6 @@
 import { getDB } from "./index";
 import { enqueueSync } from "./sync-queue";
+import { triggerSync } from "./sync";
 import type { Workout } from "./schema";
 
 export async function listRecentWorkouts(limit = 5): Promise<Workout[]> {
@@ -28,6 +29,7 @@ export async function createWorkout(title: string): Promise<Workout> {
   };
   await db.add("workouts", workout);
   await enqueueSync("workouts", "insert", workout);
+  triggerSync();
   return workout;
 }
 
@@ -44,4 +46,5 @@ export async function completeWorkout(id: string): Promise<void> {
   const updated: Workout = { ...workout, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
   await db.put("workouts", updated);
   await enqueueSync("workouts", "update", updated);
+  triggerSync();
 }
