@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const SHELL_CACHE = `lifta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `lifta-runtime-${CACHE_VERSION}`;
 
