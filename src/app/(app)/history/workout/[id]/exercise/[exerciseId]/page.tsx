@@ -19,7 +19,7 @@ export default function ExerciseHistoryPage(
 
   if (!sets) {
     return (
-      <div className="flex flex-1 flex-col px-5 pt-8">
+      <div className="flex flex-1 flex-col px-3 pt-8">
         <div className="h-24 animate-pulse rounded-2xl bg-surface" />
       </div>
     );
@@ -32,7 +32,7 @@ export default function ExerciseHistoryPage(
   const first = sets.length > 0 ? sets[sets.length - 1] : null;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">{exercise?.name ?? "Exercise"}</h1>
 
       <div className="flex flex-col gap-2">

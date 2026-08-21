@@ -25,7 +25,7 @@ export default function HistoryMonthPage(props: PageProps<"/history/[month]">) {
   }, [month]);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div>
         <h1 className="text-2xl font-bold text-white">History</h1>
         <p className="mt-1 text-lg font-semibold text-muted">{formatMonthLabel(month)}</p>

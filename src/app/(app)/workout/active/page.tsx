@@ -18,7 +18,7 @@ export default function ActiveWorkoutPage() {
 
   if (!workoutId) {
     return (
-      <div className="flex flex-1 flex-col px-5 pt-8">
+      <div className="flex flex-1 flex-col px-3 pt-8">
         <div className="h-24 animate-pulse rounded-2xl bg-surface" />
       </div>
     );

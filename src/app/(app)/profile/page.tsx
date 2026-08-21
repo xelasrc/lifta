@@ -14,7 +14,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">Profile</h1>
       <div className="rounded-2xl bg-surface p-5">
         <p className="text-sm text-muted">Signed in as</p>

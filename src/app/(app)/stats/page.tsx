@@ -16,7 +16,7 @@ export default function StatsPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-8 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-8 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">Stats</h1>
 
       {summary === null ? (

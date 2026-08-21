@@ -4,7 +4,7 @@ import { RecentWorkoutsList } from "@/components/home/recent-workouts-list";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-1 flex-col gap-8 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-8 px-3 pt-8">
       <Greeting />
       <TodaysWorkoutCard />
       <RecentWorkoutsList />

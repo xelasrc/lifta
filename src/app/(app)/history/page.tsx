@@ -8,9 +8,9 @@ import { pullFromSupabase } from "@/lib/db/pull-sync";
 import type { Workout } from "@/lib/db/schema";
 import { MonthCalendar } from "@/components/history/month-calendar";
 
-function formatMonthLabel(monthKey: string) {
+function formatMonthName(monthKey: string) {
   const [year, month] = monthKey.split("-").map(Number);
-  return new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: "long" });
 }
 
 export default function HistoryPage() {
@@ -29,7 +29,7 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-8 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">History</h1>
 
       {months === null && <div className="h-40 animate-pulse rounded-2xl bg-surface" />}
@@ -37,11 +37,15 @@ export default function HistoryPage() {
 
       {months?.map(([monthKey, workouts]) => {
         const workoutDays = new Set(workouts.map((w) => new Date(w.startedAt).getDate()));
+        const year = monthKey.split("-")[0];
         return (
-          <div key={monthKey} className="flex flex-col gap-3">
-            <Link href={`/history/${monthKey}`} className="flex items-center gap-1 text-lg font-bold text-white">
-              {formatMonthLabel(monthKey)}
-              <span className="text-accent">&rsaquo;</span>
+          <div key={monthKey} className="flex flex-col gap-4 rounded-2xl bg-surface px-3 py-5">
+            <Link href={`/history/${monthKey}`} className="flex items-center justify-between">
+              <span className="flex items-center gap-1 text-lg font-bold text-white">
+                {formatMonthName(monthKey)}
+                <span className="text-muted">&rsaquo;</span>
+              </span>
+              <span className="text-lg font-bold text-white">{year}</span>
             </Link>
             <MonthCalendar
               monthKey={monthKey}

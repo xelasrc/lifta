@@ -23,14 +23,14 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
   if (!workout) {
     return (
-      <div className="flex flex-1 flex-col px-5 pt-8">
+      <div className="flex flex-1 flex-col px-3 pt-8">
         <div className="h-24 animate-pulse rounded-2xl bg-surface" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">History</h1>
 
       <div className="rounded-2xl bg-surface p-5">

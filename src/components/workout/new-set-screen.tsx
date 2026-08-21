@@ -60,7 +60,7 @@ export function NewSetScreen({ workoutId, basePath }: { workoutId: string; baseP
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Exercise</h1>
         <button
