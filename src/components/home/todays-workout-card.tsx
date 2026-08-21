@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTodaysWorkout } from "@/lib/db/workouts";
+import { pullFromSupabase } from "@/lib/db/pull-sync";
 import type { Workout } from "@/lib/db/schema";
 
 export function TodaysWorkoutCard() {
@@ -11,10 +12,12 @@ export function TodaysWorkoutCard() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getTodaysWorkout().then((found) => {
-      setWorkout(found ?? null);
-      setLoaded(true);
-    });
+    pullFromSupabase().then(() =>
+      getTodaysWorkout().then((found) => {
+        setWorkout(found ?? null);
+        setLoaded(true);
+      }),
+    );
     router.prefetch("/workout/active");
     router.prefetch("/workout/active/new-set");
   }, [router]);

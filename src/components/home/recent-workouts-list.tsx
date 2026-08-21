@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listRecentWorkouts } from "@/lib/db/workouts";
+import { pullFromSupabase } from "@/lib/db/pull-sync";
 import type { Workout } from "@/lib/db/schema";
 
 export function RecentWorkoutsList() {
   const [workouts, setWorkouts] = useState<Workout[] | null>(null);
 
   useEffect(() => {
-    listRecentWorkouts().then(setWorkouts);
+    pullFromSupabase().then(() => listRecentWorkouts().then(setWorkouts));
   }, []);
 
   return (

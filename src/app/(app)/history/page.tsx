@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listWorkoutsByMonth } from "@/lib/db/history";
+import { pullFromSupabase } from "@/lib/db/pull-sync";
 import type { Workout } from "@/lib/db/schema";
 import { MonthCalendar } from "@/components/history/month-calendar";
 
@@ -17,7 +18,9 @@ export default function HistoryPage() {
   const [months, setMonths] = useState<[string, Workout[]][] | null>(null);
 
   useEffect(() => {
-    listWorkoutsByMonth().then((map) => setMonths(Array.from(map.entries())));
+    pullFromSupabase().then(() =>
+      listWorkoutsByMonth().then((map) => setMonths(Array.from(map.entries()))),
+    );
   }, []);
 
   function handleDayClick(workouts: Workout[], day: number) {

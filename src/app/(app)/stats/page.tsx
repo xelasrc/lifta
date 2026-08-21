@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { getStatsSummary, getPersonalRecords, type StatsSummary, type PersonalRecord } from "@/lib/db/stats";
+import { pullFromSupabase } from "@/lib/db/pull-sync";
 
 export default function StatsPage() {
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [records, setRecords] = useState<PersonalRecord[] | null>(null);
 
   useEffect(() => {
-    getStatsSummary().then(setSummary);
-    getPersonalRecords().then(setRecords);
+    pullFromSupabase().then(() => {
+      getStatsSummary().then(setSummary);
+      getPersonalRecords().then(setRecords);
+    });
   }, []);
 
   return (

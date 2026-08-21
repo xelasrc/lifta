@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { getOrCreateTodaysWorkout } from "@/lib/db/workouts";
+import { pullFromSupabase } from "@/lib/db/pull-sync";
 import { NewSetScreen } from "@/components/workout/new-set-screen";
 
 export default function ActiveWorkoutNewSetPage() {
   const [workoutId, setWorkoutId] = useState<string | null>(null);
 
   useEffect(() => {
-    getOrCreateTodaysWorkout().then((workout) => setWorkoutId(workout.id));
+    pullFromSupabase()
+      .then(() => getOrCreateTodaysWorkout())
+      .then((workout) => setWorkoutId(workout.id));
   }, []);
 
   if (!workoutId) {
