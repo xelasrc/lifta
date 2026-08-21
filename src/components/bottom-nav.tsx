@@ -16,20 +16,30 @@ const tabs = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const activeIndex = tabs.findIndex(({ href }) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href),
+  );
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
-      <div className="mx-auto flex max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
-        {tabs.map(({ href, label, Icon }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+      <div className="relative mx-auto flex max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
+        <div
+          aria-hidden
+          className="absolute inset-y-0 left-0 rounded-xl bg-accent transition-transform duration-300 ease-out"
+          style={{
+            width: `${100 / tabs.length}%`,
+            transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
+          }}
+        />
+        {tabs.map(({ href, label, Icon }, i) => {
+          const active = i === activeIndex;
           return (
             <Link
               key={href}
               href={href}
               aria-label={label}
-              className={`flex flex-1 items-center justify-center rounded-xl py-5.5 text-white transition-colors ${
-                active ? "bg-accent" : "bg-transparent"
-              }`}
+              aria-current={active ? "page" : undefined}
+              className="relative z-10 flex flex-1 items-center justify-center py-5.5 text-white"
             >
               <Icon className="h-11.5 w-11.5" />
             </Link>
