@@ -1,12 +1,15 @@
-import { getDB } from "./index";
-import { enqueueSync } from "./sync-queue";
-import { triggerSync } from "./sync";
-import type { WorkoutSet } from "./schema";
+import { createClient } from "@/lib/supabase/client";
+import { mapWorkoutSet } from "./mappers";
+import type { WorkoutSet } from "./types";
 
 export async function listSetsForWorkout(workoutId: string): Promise<WorkoutSet[]> {
-  const db = await getDB();
-  const sets = await db.getAllFromIndex("workout_sets", "by-workoutId", workoutId);
-  return sets.sort((a, b) => a.order - b.order);
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("workout_sets")
+    .select("*")
+    .eq("workout_id", workoutId)
+    .order("position", { ascending: true });
+  return (data ?? []).map(mapWorkoutSet);
 }
 
 export async function createSet(input: {
@@ -15,28 +18,32 @@ export async function createSet(input: {
   reps: number;
   weightKg: number | null;
 }): Promise<WorkoutSet> {
-  const db = await getDB();
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+
   const existing = await listSetsForWorkout(input.workoutId);
-  const now = new Date().toISOString();
-  const set: WorkoutSet = {
-    id: crypto.randomUUID(),
-    workoutId: input.workoutId,
-    exerciseId: input.exerciseId,
-    reps: input.reps,
-    weightKg: input.weightKg,
-    order: existing.length,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await db.add("workout_sets", set);
-  await enqueueSync("workout_sets", "insert", set);
-  triggerSync();
-  return set;
+
+  const { data, error } = await supabase
+    .from("workout_sets")
+    .insert({
+      user_id: user.id,
+      workout_id: input.workoutId,
+      exercise_id: input.exerciseId,
+      reps: input.reps,
+      weight_kg: input.weightKg,
+      position: existing.length,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapWorkoutSet(data);
 }
 
 export async function deleteSet(id: string): Promise<void> {
-  const db = await getDB();
-  await db.delete("workout_sets", id);
-  await enqueueSync("workout_sets", "delete", { id });
-  triggerSync();
+  const supabase = createClient();
+  const { error } = await supabase.from("workout_sets").delete().eq("id", id);
+  if (error) throw error;
 }

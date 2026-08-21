@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { listSetsForWorkout, deleteSet } from "@/lib/db/sets";
 import { getExercise } from "@/lib/db/exercises";
 import { completeWorkout } from "@/lib/db/workouts";
-import type { WorkoutSet } from "@/lib/db/schema";
+import type { WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 
 type SetRow = WorkoutSet & { exerciseName: string };
@@ -20,7 +20,7 @@ async function fetchSetRows(workoutId: string): Promise<SetRow[]> {
   );
 }
 
-export function AddSetsScreen({ workoutId, basePath }: { workoutId: string; basePath: string }) {
+export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
   const [sets, setSets] = useState<SetRow[] | null>(null);
   const [ending, setEnding] = useState(false);
@@ -47,7 +47,7 @@ export function AddSetsScreen({ workoutId, basePath }: { workoutId: string; base
 
       <button
         type="button"
-        onClick={() => router.push(`${basePath}/new-set`)}
+        onClick={() => router.push(`/workout/${workoutId}/new-set`)}
         className="flex h-32 items-center justify-center rounded-2xl bg-surface text-accent"
         aria-label="Add set"
       >

@@ -1,6 +1,7 @@
-import { getDB } from "./index";
+import { createClient } from "@/lib/supabase/client";
 import { getExercise } from "./exercises";
-import type { Exercise, WorkoutSet } from "./schema";
+import { mapWorkoutSet } from "./mappers";
+import type { Exercise, WorkoutSet } from "./types";
 
 export interface StatsSummary {
   totalWorkouts: number;
@@ -10,15 +11,21 @@ export interface StatsSummary {
 }
 
 export async function getStatsSummary(): Promise<StatsSummary> {
-  const db = await getDB();
-  const workouts = (await db.getAll("workouts")).filter((w) => w.completedAt);
-  const sets = await db.getAll("workout_sets");
+  const supabase = createClient();
+
+  const [workoutsRes, setsRes] = await Promise.all([
+    supabase.from("workouts").select("started_at").not("completed_at", "is", null),
+    supabase.from("workout_sets").select("reps, weight_kg"),
+  ]);
+
+  const workouts = workoutsRes.data ?? [];
+  const sets = setsRes.data ?? [];
 
   const totalWorkouts = workouts.length;
   const totalSets = sets.length;
-  const totalVolumeKg = sets.reduce((sum, s) => sum + s.reps * (s.weightKg ?? 0), 0);
+  const totalVolumeKg = sets.reduce((sum, s) => sum + s.reps * (s.weight_kg ?? 0), 0);
 
-  const workoutDates = new Set(workouts.map((w) => new Date(w.startedAt).toDateString()));
+  const workoutDates = new Set(workouts.map((w) => new Date(w.started_at).toDateString()));
   let currentStreak = 0;
   const cursor = new Date();
   if (!workoutDates.has(cursor.toDateString())) {
@@ -38,8 +45,9 @@ export interface PersonalRecord {
 }
 
 export async function getPersonalRecords(): Promise<PersonalRecord[]> {
-  const db = await getDB();
-  const sets = await db.getAll("workout_sets");
+  const supabase = createClient();
+  const { data } = await supabase.from("workout_sets").select("*");
+  const sets = (data ?? []).map(mapWorkoutSet);
 
   const bestByExercise = new Map<string, WorkoutSet>();
   for (const set of sets) {

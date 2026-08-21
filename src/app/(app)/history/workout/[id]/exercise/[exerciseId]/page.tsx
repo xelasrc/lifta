@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { listSetsForExercise } from "@/lib/db/history";
 import { getExercise } from "@/lib/db/exercises";
-import type { Exercise, WorkoutSet } from "@/lib/db/schema";
+import type { Exercise, WorkoutSet } from "@/lib/db/types";
 
 export default function ExerciseHistoryPage(
   props: PageProps<"/history/workout/[id]/exercise/[exerciseId]">,

@@ -1,7 +1,7 @@
 {
   "name": "Lifta — Workout Tracker",
   "short_name": "Lifta",
-  "description": "Offline-first workout tracker.",
+  "description": "Workout tracker.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

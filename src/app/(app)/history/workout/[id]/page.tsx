@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
-import type { Exercise, Workout, WorkoutSet } from "@/lib/db/schema";
+import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 
 type Group = { exercise: Exercise | undefined; sets: WorkoutSet[] };
 

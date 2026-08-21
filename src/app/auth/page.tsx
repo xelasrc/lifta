@@ -19,7 +19,7 @@ export default async function AuthPage() {
         <div className="flex flex-col items-center gap-3 text-center">
           <BarbellIcon className="h-9 w-9 text-accent" />
           <h1 className="text-2xl font-bold text-white">Lifta</h1>
-          <p className="text-sm text-muted">Track your lifts. Offline or on.</p>
+          <p className="text-sm text-muted">Track your lifts.</p>
         </div>
 
         <AuthForm />

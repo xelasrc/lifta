@@ -2,25 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTodaysWorkout } from "@/lib/db/workouts";
-import { pullFromSupabase } from "@/lib/db/pull-sync";
-import type { Workout } from "@/lib/db/schema";
+import { getTodaysWorkout, getOrCreateTodaysWorkout } from "@/lib/db/workouts";
+import type { Workout } from "@/lib/db/types";
 
 export function TodaysWorkoutCard() {
   const router = useRouter();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [starting, setStarting] = useState(false);
 
   useEffect(() => {
-    pullFromSupabase().then(() =>
-      getTodaysWorkout().then((found) => {
-        setWorkout(found ?? null);
-        setLoaded(true);
-      }),
-    );
-    router.prefetch("/workout/active");
-    router.prefetch("/workout/active/new-set");
+    getTodaysWorkout().then((found) => {
+      setWorkout(found ?? null);
+      setLoaded(true);
+      if (found) {
+        router.prefetch(`/workout/${found.id}`);
+        router.prefetch(`/workout/${found.id}/new-set`);
+      }
+    });
   }, [router]);
+
+  async function handleStart() {
+    setStarting(true);
+    const active = workout ?? (await getOrCreateTodaysWorkout());
+    router.push(`/workout/${active.id}`);
+  }
 
   if (!loaded) {
     return <div className="h-40 animate-pulse rounded-2xl bg-surface" />;
@@ -36,8 +42,9 @@ export function TodaysWorkoutCard() {
       </div>
       <button
         type="button"
-        onClick={() => router.push("/workout/active")}
-        className="rounded-full bg-accent py-3 text-center font-bold text-white"
+        onClick={handleStart}
+        disabled={starting}
+        className="rounded-full bg-accent py-3 text-center font-bold text-white disabled:opacity-60"
       >
         {workout ? "Continue" : "Start"}
       </button>

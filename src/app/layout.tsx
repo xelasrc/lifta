@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Lifta — Workout Tracker",
-  description: "Offline-first workout tracker.",
+  description: "Workout tracker.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -39,7 +38,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex h-lvh flex-col overflow-y-auto pt-[env(safe-area-inset-top)]">
         {children}
-        <ServiceWorkerRegister />
       </body>
     </html>
   );

@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSet } from "@/lib/db/sets";
-import { createExercise, searchExercises, syncExercisesFromSupabase } from "@/lib/db/exercises";
-import type { Exercise } from "@/lib/db/schema";
+import { createExercise, searchExercises } from "@/lib/db/exercises";
+import type { Exercise } from "@/lib/db/types";
 import { NumberPicker } from "@/components/workout/number-picker";
 
-export function NewSetScreen({ workoutId, basePath }: { workoutId: string; basePath: string }) {
+export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -16,20 +16,13 @@ export function NewSetScreen({ workoutId, basePath }: { workoutId: string; baseP
   const [weight, setWeight] = useState(20);
   const [reps, setReps] = useState(8);
   const [saving, setSaving] = useState(false);
-  const [catalogReady, setCatalogReady] = useState(false);
   const [loggedSets, setLoggedSets] = useState<{ reps: number; weightKg: number | null }[]>([]);
   const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
-    syncExercisesFromSupabase().finally(() => setCatalogReady(true));
-  }, []);
-
-  useEffect(() => {
     if (selected) return;
     searchExercises(query).then(setSuggestions);
-    // Re-run once the initial catalog sync lands, even if the query hasn't changed,
-    // so results appear if the user searched before the first sync finished.
-  }, [query, selected, catalogReady]);
+  }, [query, selected]);
 
   function handleSelect(exercise: Exercise) {
     setSelected(exercise);
@@ -56,7 +49,7 @@ export function NewSetScreen({ workoutId, basePath }: { workoutId: string; baseP
   }
 
   function handleDone() {
-    router.push(basePath);
+    router.push(`/workout/${workoutId}`);
   }
 
   return (
@@ -83,11 +76,7 @@ export function NewSetScreen({ workoutId, basePath }: { workoutId: string; baseP
           className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
         />
 
-        {!selected && query && !catalogReady && (
-          <p className="px-1 text-sm text-muted">Loading exercises…</p>
-        )}
-
-        {!selected && query && catalogReady && (
+        {!selected && query && (
           <div className="flex flex-col gap-1 rounded-2xl bg-surface p-2">
             {suggestions.map((exercise) => (
               <button

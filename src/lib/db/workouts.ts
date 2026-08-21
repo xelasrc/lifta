@@ -1,36 +1,50 @@
-import { getDB } from "./index";
-import { enqueueSync } from "./sync-queue";
-import { triggerSync } from "./sync";
-import type { Workout } from "./schema";
+import { createClient } from "@/lib/supabase/client";
+import { mapWorkout } from "./mappers";
+import type { Workout } from "./types";
 
 export async function listRecentWorkouts(limit = 5): Promise<Workout[]> {
-  const db = await getDB();
-  const all = await db.getAllFromIndex("workouts", "by-startedAt");
-  return all.reverse().slice(0, limit);
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("workouts")
+    .select("*")
+    .order("started_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []).map(mapWorkout);
 }
 
 export async function getTodaysWorkout(): Promise<Workout | undefined> {
-  const db = await getDB();
-  const all = await db.getAllFromIndex("workouts", "by-startedAt");
-  const todayKey = new Date().toDateString();
-  return all.reverse().find((workout) => new Date(workout.startedAt).toDateString() === todayKey);
+  const supabase = createClient();
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const { data } = await supabase
+    .from("workouts")
+    .select("*")
+    .gte("started_at", startOfDay.toISOString())
+    .lt("started_at", endOfDay.toISOString())
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data ? mapWorkout(data) : undefined;
 }
 
 export async function createWorkout(title: string): Promise<Workout> {
-  const db = await getDB();
-  const now = new Date().toISOString();
-  const workout: Workout = {
-    id: crypto.randomUUID(),
-    title,
-    startedAt: now,
-    completedAt: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await db.add("workouts", workout);
-  await enqueueSync("workouts", "insert", workout);
-  triggerSync();
-  return workout;
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+
+  const { data, error } = await supabase
+    .from("workouts")
+    .insert({ user_id: user.id, title, started_at: new Date().toISOString() })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapWorkout(data);
 }
 
 export async function getOrCreateTodaysWorkout(): Promise<Workout> {
@@ -38,18 +52,11 @@ export async function getOrCreateTodaysWorkout(): Promise<Workout> {
   return existing ?? createWorkout("Workout");
 }
 
-export async function getWorkout(id: string): Promise<Workout | undefined> {
-  const db = await getDB();
-  return db.get("workouts", id);
-}
-
 export async function completeWorkout(id: string): Promise<void> {
-  const db = await getDB();
-  const workout = await db.get("workouts", id);
-  if (!workout) return;
-
-  const updated: Workout = { ...workout, completedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-  await db.put("workouts", updated);
-  await enqueueSync("workouts", "update", updated);
-  triggerSync();
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("workouts")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
 }
