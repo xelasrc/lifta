@@ -6,23 +6,33 @@ import type { Exercise } from "./schema";
 
 export async function syncExercisesFromSupabase() {
   const supabase = createClient();
-  const { data, error } = await supabase.from("exercises").select("*");
-  if (error || !data) return;
 
-  const db = await getDB();
-  const tx = db.transaction("exercises", "readwrite");
-  await Promise.all([
-    ...data.map((row) =>
-      tx.store.put({
-        id: row.id,
-        name: row.name,
-        category: row.category,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      } satisfies Exercise),
-    ),
-    tx.done,
-  ]);
+  try {
+    // Cap the wait: offline requests can otherwise hang for the browser's full
+    // network timeout (10s+) before falling back to the local cache.
+    const { data, error } = await supabase
+      .from("exercises")
+      .select("*")
+      .abortSignal(AbortSignal.timeout(3000));
+    if (error || !data) return;
+
+    const db = await getDB();
+    const tx = db.transaction("exercises", "readwrite");
+    await Promise.all([
+      ...data.map((row) =>
+        tx.store.put({
+          id: row.id,
+          name: row.name,
+          category: row.category,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        } satisfies Exercise),
+      ),
+      tx.done,
+    ]);
+  } catch {
+    // Offline or timed out - proceed with whatever's already cached locally.
+  }
 }
 
 export async function listExercises(): Promise<Exercise[]> {

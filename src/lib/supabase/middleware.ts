@@ -27,7 +27,19 @@ export async function updateSession(request: NextRequest) {
 
   // Refreshes the auth token if needed. Offline requests will fail here
   // and fall through with the existing (possibly stale) session cookie.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user && request.nextUrl.pathname !== "/auth") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth";
+    const redirectResponse = NextResponse.redirect(url);
+    for (const cookie of response.cookies.getAll()) {
+      redirectResponse.cookies.set(cookie);
+    }
+    return redirectResponse;
+  }
 
   return response;
 }

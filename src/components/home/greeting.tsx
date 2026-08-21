@@ -1,6 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 function noopSubscribe() {
   return () => {};
@@ -13,8 +14,19 @@ function getTimeOfDay() {
   return "Evening";
 }
 
-export function Greeting({ name }: { name: string }) {
+export function Greeting() {
   const timeOfDay = useSyncExternalStore(noopSubscribe, getTimeOfDay, () => "Morning");
+  const [name, setName] = useState("there");
+
+  useEffect(() => {
+    createClient()
+      .auth.getSession()
+      .then(({ data: { session } }) => {
+        const user = session?.user;
+        const fullName = user?.user_metadata?.full_name as string | undefined;
+        setName(fullName ?? user?.email?.split("@")[0] ?? "there");
+      });
+  }, []);
 
   return (
     <div>

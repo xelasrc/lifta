@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const SHELL_CACHE = `lifta-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `lifta-runtime-${CACHE_VERSION}`;
 
@@ -55,14 +55,17 @@ self.addEventListener("fetch", (event) => {
 });
 
 async function networkFirst(request) {
+  const cache = await caches.open(SHELL_CACHE);
+
   try {
     const response = await fetch(request);
-    const cache = await caches.open(SHELL_CACHE);
-    cache.put(request, response.clone());
+    // Key by URL string, not the Request object: a navigate-mode Request can
+    // fail to match cache entries stored with a different request mode.
+    cache.put(request.url, response.clone());
     return response;
   } catch {
-    const cached = await caches.match(request);
-    return cached ?? (await caches.match("/")) ?? Response.error();
+    const cached = (await cache.match(request.url)) ?? (await cache.match("/"));
+    return cached ?? Response.error();
   }
 }
 

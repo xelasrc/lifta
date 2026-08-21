@@ -33,6 +33,11 @@ export async function createWorkout(title: string): Promise<Workout> {
   return workout;
 }
 
+export async function getOrCreateTodaysWorkout(): Promise<Workout> {
+  const existing = await getTodaysWorkout();
+  return existing ?? createWorkout("Workout");
+}
+
 export async function getWorkout(id: string): Promise<Workout | undefined> {
   const db = await getDB();
   return db.get("workouts", id);
