@@ -1,9 +1,18 @@
 import { getDB } from "./index";
 import { createClient } from "@/lib/supabase/client";
 import { syncExercisesFromSupabase } from "./exercises";
+import { withTimeout } from "./with-timeout";
 import type { Workout, WorkoutSet } from "./schema";
 
 export async function pullFromSupabase(): Promise<void> {
+  // Hard outer bound: every caller gates a local read behind this, so it must
+  // never hang - even if some internal step (e.g. auth.getUser(), which has
+  // no timeout of its own) does, on a slow/flaky connection rather than a
+  // cleanly-offline one.
+  await withTimeout(doPull(), 5000);
+}
+
+async function doPull(): Promise<void> {
   const supabase = createClient();
 
   try {

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { drainSyncQueue } from "./sync-queue";
+import { withTimeout } from "./with-timeout";
 import type { Exercise, SyncOperation, Workout, WorkoutSet } from "./schema";
 
 let syncing = false;
@@ -42,9 +43,13 @@ export function triggerSync() {
 
 async function syncPendingChanges(): Promise<boolean> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userResult = await withTimeout(supabase.auth.getUser(), 5000);
+  // Timed out (slow/flaky connection, not cleanly offline) - treat as a
+  // transient failure so the retry-with-backoff picks it up again shortly,
+  // rather than leaving `syncing` stuck true forever on an unbounded hang.
+  if (!userResult) return false;
+
+  const { user } = userResult.data;
   if (!user) return true;
 
   const result = await drainSyncQueue(async (entry) => {
