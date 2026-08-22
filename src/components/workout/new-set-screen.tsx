@@ -76,8 +76,8 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
           className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
         />
 
-        {!selected && query && (
-          <div className="flex flex-col gap-1 rounded-2xl bg-surface p-2">
+        {!selected && (
+          <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-2xl bg-surface p-2">
             {suggestions.map((exercise) => (
               <button
                 key={exercise.id}
@@ -89,13 +89,15 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 <span className="text-accent">&rsaquo;</span>
               </button>
             ))}
-            <button
-              type="button"
-              onClick={handleAddCustom}
-              className="rounded-xl px-3 py-3 text-left font-semibold text-accent hover:bg-white/5"
-            >
-              + Add &quot;{query}&quot; as new exercise
-            </button>
+            {query && (
+              <button
+                type="button"
+                onClick={handleAddCustom}
+                className="rounded-xl px-3 py-3 text-left font-semibold text-accent hover:bg-white/5"
+              >
+                + Add &quot;{query}&quot; as new exercise
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -104,7 +106,14 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         <>
           <div>
             <p className="mb-2 text-sm font-semibold text-muted">Weight (kg)</p>
-            <NumberPicker min={0} max={300} step={0.5} value={weight} onChange={setWeight} />
+            <NumberPicker
+              min={0}
+              max={300}
+              step={0.5}
+              value={weight}
+              onChange={setWeight}
+              format={(v) => `${v}`}
+            />
           </div>
 
           <div>
