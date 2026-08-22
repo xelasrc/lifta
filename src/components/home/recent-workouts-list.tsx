@@ -14,9 +14,9 @@ export function RecentWorkoutsList() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm font-semibold text-muted">Recent workouts</p>
+      <p className="text-xl font-semibold text-white">Recent workouts</p>
 
-      {workouts === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
+      {workouts === null && <div className="h-16 animate-pulse rounded-full bg-surface" />}
 
       {workouts?.length === 0 && (
         <p className="text-sm text-muted">Nothing logged yet — start your first workout above.</p>
@@ -26,13 +26,23 @@ export function RecentWorkoutsList() {
         <Link
           key={workout.id}
           href={`/workout/${workout.id}`}
-          className="flex items-center justify-between rounded-2xl border border-accent/60 px-4 py-3"
+          className="flex items-center justify-between gap-3 rounded-full border border-accent px-5 py-4"
         >
-          <div>
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-bold text-white">
+              {new Date(workout.startedAt).toLocaleDateString(undefined, {
+                month: "numeric",
+                day: "numeric",
+                year: "2-digit",
+              })}
+            </span>
             <p className="font-semibold text-white">{workout.title}</p>
-            <p className="text-xs text-muted">{new Date(workout.startedAt).toLocaleDateString()}</p>
           </div>
-          <span className="text-accent">&rsaquo;</span>
+          <span aria-hidden className="flex text-xl font-bold leading-none">
+            <span className="text-white">&rsaquo;</span>
+            <span className="text-white/60">&rsaquo;</span>
+            <span className="text-white/30">&rsaquo;</span>
+          </span>
         </Link>
       ))}
     </div>

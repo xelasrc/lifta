@@ -52,6 +52,12 @@ export async function getOrCreateTodaysWorkout(): Promise<Workout> {
   return existing ?? createWorkout("Workout");
 }
 
+export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from("workouts").update({ title }).eq("id", id);
+  if (error) throw error;
+}
+
 export async function completeWorkout(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
