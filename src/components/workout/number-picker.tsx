@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const ROW_HEIGHT = 44;
+const ROW_HEIGHT = 25;
 const VISIBLE_ROWS = 3;
 
 function buildValues(min: number, max: number, step: number) {
@@ -50,7 +50,9 @@ export function NumberPicker({
   // as a result of this picker's own onScroll -> onChange round-trip, so the
   // scroll position is already correct by the time it would change again.
   useEffect(() => {
-    containerRef.current?.scrollTo({ top: centerIndex * ROW_HEIGHT });
+    // behavior: "instant" is required to override the container's scroll-smooth
+    // class, which otherwise animates this initial jump and briefly shows the wrong value.
+    containerRef.current?.scrollTo({ top: centerIndex * ROW_HEIGHT, behavior: "instant" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -67,23 +69,21 @@ export function NumberPicker({
   }, [list, onChange, value]);
 
   return (
-    <div className="relative">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-1/2 h-11 -translate-y-1/2 rounded-xl bg-white/5"
-      />
+    <div
+      className="relative mx-auto w-55 overflow-hidden rounded-full border-2 border-white/30 bg-[#141414]"
+      style={{ height: ROW_HEIGHT * VISIBLE_ROWS }}
+    >
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="relative overflow-y-auto scroll-smooth [scroll-snap-type:y_mandatory]"
-        style={{ height: ROW_HEIGHT * VISIBLE_ROWS }}
+        className="relative h-full overflow-y-auto scroll-smooth [scroll-snap-type:y_mandatory]"
       >
         <div style={{ height: ROW_HEIGHT }} />
         {list.map((v, i) => (
           <div
             key={v}
             className={`flex items-center justify-center transition-colors [scroll-snap-align:center] ${
-              i === centerIndex ? "text-lg font-bold text-white" : "text-sm text-muted"
+              i === centerIndex ? "text-lg font-bold text-white" : "text-sm text-white/40"
             }`}
             style={{ height: ROW_HEIGHT }}
           >
