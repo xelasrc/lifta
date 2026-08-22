@@ -76,7 +76,7 @@ export function NumberPicker({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="relative h-full overflow-y-auto scroll-smooth [scroll-snap-type:y_mandatory]"
+        className="relative h-full overflow-y-auto scroll-smooth scrollbar-none [scroll-snap-type:y_mandatory]"
       >
         <div style={{ height: ROW_HEIGHT }} />
         {list.map((v, i) => (

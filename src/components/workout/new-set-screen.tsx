@@ -77,7 +77,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         />
 
         {!selected && (
-          <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-2xl bg-surface p-2">
+          <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-2xl bg-surface p-2 scrollbar-none">
             {suggestions.map((exercise) => (
               <button
                 key={exercise.id}
