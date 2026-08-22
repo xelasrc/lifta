@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTodaysWorkout, getOrCreateTodaysWorkout } from "@/lib/db/workouts";
 import type { Workout } from "@/lib/db/types";
+import { SlideToStart } from "./slide-to-start";
 
 export function TodaysWorkoutCard() {
   const router = useRouter();
@@ -40,14 +41,7 @@ export function TodaysWorkoutCard() {
         </p>
         {workout && <p className="text-xl font-bold text-white">{workout.title}</p>}
       </div>
-      <button
-        type="button"
-        onClick={handleStart}
-        disabled={starting}
-        className="rounded-full bg-accent py-3 text-center font-bold text-white disabled:opacity-60"
-      >
-        {workout ? "Continue" : "Start"}
-      </button>
+      <SlideToStart label={workout ? "Continue" : "Start"} onComplete={handleStart} disabled={starting} />
     </div>
   );
 }
