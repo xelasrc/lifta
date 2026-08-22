@@ -52,6 +52,12 @@ export async function getOrCreateTodaysWorkout(): Promise<Workout> {
   return existing ?? createWorkout("Workout");
 }
 
+export async function getWorkoutById(id: string): Promise<Workout | undefined> {
+  const supabase = createClient();
+  const { data } = await supabase.from("workouts").select("*").eq("id", id).maybeSingle();
+  return data ? mapWorkout(data) : undefined;
+}
+
 export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("workouts").update({ title }).eq("id", id);
