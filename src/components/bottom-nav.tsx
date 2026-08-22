@@ -39,9 +39,9 @@ export function BottomNav() {
               href={href}
               aria-label={label}
               aria-current={active ? "page" : undefined}
-              className="relative z-10 flex flex-1 items-center justify-center py-5.5 text-white"
+              className="relative z-10 flex flex-1 items-center justify-center py-4.5 text-white"
             >
-              <Icon className="h-11.5 w-11.5" />
+              <Icon className="h-10.5 w-10.5" />
             </Link>
           );
         })}
