@@ -9,6 +9,7 @@ export interface Exercise {
 export interface Workout {
   id: string;
   title: string;
+  splitDay: string | null;
   startedAt: string;
   completedAt: string | null;
   createdAt: string;

@@ -86,6 +86,18 @@ export async function updateWorkoutTitle(id: string, title: string): Promise<voi
   if (error) throw error;
 }
 
+export async function updateWorkoutDetails(
+  id: string,
+  updates: { title: string; splitDay: string | null },
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("workouts")
+    .update({ title: updates.title, split_day: updates.splitDay })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 export async function completeWorkout(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase

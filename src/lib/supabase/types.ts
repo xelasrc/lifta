@@ -26,6 +26,7 @@ export interface Database {
           id: string;
           user_id: string;
           title: string;
+          split_day: string | null;
           started_at: string;
           completed_at: string | null;
           created_at: string;
@@ -35,6 +36,7 @@ export interface Database {
           id?: string;
           user_id: string;
           title: string;
+          split_day?: string | null;
           started_at: string;
           completed_at?: string | null;
           created_at?: string;

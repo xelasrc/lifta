@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listSetsForWorkout, deleteSet } from "@/lib/db/sets";
 import { getExercise } from "@/lib/db/exercises";
-import { completeWorkout } from "@/lib/db/workouts";
-import type { WorkoutSet } from "@/lib/db/types";
+import { completeWorkout, getWorkoutById, updateWorkoutDetails } from "@/lib/db/workouts";
+import type { Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
+import { PencilIcon } from "@/components/icons/pencil-icon";
+import { CheckIcon } from "@/components/icons/check-icon";
 
 type SetRow = WorkoutSet & { exerciseName: string };
 
@@ -23,14 +25,21 @@ async function fetchSetRows(workoutId: string): Promise<SetRow[]> {
 
 export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
+  const [workout, setWorkout] = useState<Workout | null>(null);
   const [sets, setSets] = useState<SetRow[] | null>(null);
   const [ending, setEnding] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+  const [splitDayDraft, setSplitDayDraft] = useState("");
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    getWorkoutById(workoutId).then((w) => setWorkout(w ?? null));
     fetchSetRows(workoutId).then(setSets);
   }, [workoutId]);
 
   async function handleEndWorkout() {
+    if (!window.confirm("End this workout? You won't be able to add more sets to it after.")) return;
     setEnding(true);
     await completeWorkout(workoutId);
     router.push("/");
@@ -42,13 +51,76 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     setSets(await fetchSetRows(workoutId));
   }
 
+  function startEditing() {
+    if (!workout) return;
+    setTitleDraft(workout.title);
+    setSplitDayDraft(workout.splitDay ?? "");
+    setEditing(true);
+    requestAnimationFrame(() => titleInputRef.current?.select());
+  }
+
+  async function commitEdit() {
+    if (!workout) return;
+    const title = titleDraft.trim() || workout.title;
+    const splitDay = splitDayDraft.trim() || null;
+    setWorkout({ ...workout, title, splitDay });
+    setEditing(false);
+    await updateWorkoutDetails(workoutId, { title, splitDay });
+  }
+
+  function handleEditKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "Enter") commitEdit();
+    if (event.key === "Escape") setEditing(false);
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <div className="flex items-center gap-3">
-        <Link href="/" aria-label="Back to home" className="text-2xl font-bold text-white">
-          &lsaquo;
-        </Link>
-        <h1 className="text-2xl font-bold text-white">Add Sets</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <Link href="/" aria-label="Back to home" className="pt-1 text-2xl font-bold text-white">
+            &lsaquo;
+          </Link>
+
+          {workout ? (
+            editing ? (
+              <div className="flex flex-1 flex-col gap-2 pt-0.5">
+                <input
+                  ref={titleInputRef}
+                  value={titleDraft}
+                  onChange={(event) => setTitleDraft(event.target.value)}
+                  onKeyDown={handleEditKeyDown}
+                  placeholder="Workout name"
+                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
+                />
+                <input
+                  value={splitDayDraft}
+                  onChange={(event) => setSplitDayDraft(event.target.value)}
+                  onKeyDown={handleEditKeyDown}
+                  placeholder="Split day (e.g. Push)"
+                  className="border-b border-white/20 bg-transparent pb-1 text-sm font-semibold text-accent outline-none"
+                />
+              </div>
+            ) : (
+              <div>
+                <p className="text-2xl font-bold text-white">{workout.title}</p>
+                {workout.splitDay && <p className="text-sm font-semibold text-accent">{workout.splitDay}</p>}
+              </div>
+            )
+          ) : (
+            <div className="h-8 w-40 animate-pulse rounded bg-surface" />
+          )}
+        </div>
+
+        {workout && (
+          <button
+            type="button"
+            onClick={editing ? commitEdit : startEditing}
+            aria-label={editing ? "Save workout details" : "Edit workout details"}
+            className="pt-1 text-muted hover:text-white"
+          >
+            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
+          </button>
+        )}
       </div>
 
       <button
@@ -99,7 +171,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
         type="button"
         onClick={handleEndWorkout}
         disabled={ending}
-        className="mt-auto rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
+        className="mt-auto mb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
       >
         End Workout
       </button>

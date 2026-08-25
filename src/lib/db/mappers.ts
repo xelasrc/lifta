@@ -9,6 +9,7 @@ export function mapWorkout(row: WorkoutRow): Workout {
   return {
     id: row.id,
     title: row.title,
+    splitDay: row.split_day,
     startedAt: row.started_at,
     completedAt: row.completed_at,
     createdAt: row.created_at,
