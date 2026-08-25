@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { listSetsForWorkout, deleteSet } from "@/lib/db/sets";
 import { getExercise } from "@/lib/db/exercises";
 import { completeWorkout } from "@/lib/db/workouts";
@@ -43,7 +44,12 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">Add Sets</h1>
+      <div className="flex items-center gap-3">
+        <Link href="/" aria-label="Back to home" className="text-2xl font-bold text-white">
+          &lsaquo;
+        </Link>
+        <h1 className="text-2xl font-bold text-white">Add Sets</h1>
+      </div>
 
       <button
         type="button"

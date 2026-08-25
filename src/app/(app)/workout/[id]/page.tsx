@@ -13,7 +13,7 @@ export default function WorkoutByIdPage(props: PageProps<"/workout/[id]">) {
 
   useEffect(() => {
     getWorkoutById(id).then((workout) => {
-      if (workout && !isToday(workout.startedAt)) {
+      if (workout && (workout.completedAt || !isToday(workout.startedAt))) {
         router.replace(`/history/workout/${id}`);
       } else {
         setAllowed(true);

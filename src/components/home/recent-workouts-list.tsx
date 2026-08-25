@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listRecentWorkouts } from "@/lib/db/workouts";
 import type { Workout } from "@/lib/db/types";
-import { isToday } from "@/lib/date";
 
 export function RecentWorkoutsList() {
   const [workouts, setWorkouts] = useState<Workout[] | null>(null);
@@ -26,7 +25,7 @@ export function RecentWorkoutsList() {
       {workouts?.map((workout) => (
         <Link
           key={workout.id}
-          href={isToday(workout.startedAt) ? `/workout/${workout.id}` : `/history/workout/${workout.id}`}
+          href={`/history/workout/${workout.id}`}
           className="flex items-center justify-between gap-3 rounded-full border border-accent px-5 py-4"
         >
           <div className="flex items-center gap-4">

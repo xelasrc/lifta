@@ -20,9 +20,15 @@ export default function HistoryPage() {
     listWorkoutsByMonth().then((map) => setMonths(Array.from(map.entries())));
   }, []);
 
-  function handleDayClick(workouts: Workout[], day: number) {
-    const match = workouts.find((w) => new Date(w.startedAt).getDate() === day);
-    if (match) router.push(`/history/workout/${match.id}`);
+  function handleDayClick(workouts: Workout[], day: number, monthKey: string) {
+    const matches = workouts.filter((w) => new Date(w.startedAt).getDate() === day);
+    if (matches.length === 1) {
+      router.push(`/history/workout/${matches[0].id}`);
+    } else if (matches.length > 1) {
+      // Multiple workouts on the same day — send to the month list instead
+      // of guessing which one the user meant.
+      router.push(`/history/${monthKey}`);
+    }
   }
 
   return (
@@ -47,7 +53,7 @@ export default function HistoryPage() {
             <MonthCalendar
               monthKey={monthKey}
               workoutDays={workoutDays}
-              onDayClick={(day) => handleDayClick(workouts, day)}
+              onDayClick={(day) => handleDayClick(workouts, day, monthKey)}
             />
           </div>
         );

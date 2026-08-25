@@ -7,11 +7,14 @@ export async function listRecentWorkouts(limit = 5): Promise<Workout[]> {
   const { data } = await supabase
     .from("workouts")
     .select("*")
+    .not("completed_at", "is", null)
     .order("started_at", { ascending: false })
     .limit(limit);
   return (data ?? []).map(mapWorkout);
 }
 
+// Returns today's *in-progress* workout, if any — a completed workout is
+// done and shouldn't be resumed, so it's treated the same as no workout yet.
 export async function getTodaysWorkout(): Promise<Workout | undefined> {
   const supabase = createClient();
   const startOfDay = new Date();
@@ -24,6 +27,7 @@ export async function getTodaysWorkout(): Promise<Workout | undefined> {
     .select("*")
     .gte("started_at", startOfDay.toISOString())
     .lt("started_at", endOfDay.toISOString())
+    .is("completed_at", null)
     .order("started_at", { ascending: false })
     .limit(1)
     .maybeSingle();
