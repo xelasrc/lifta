@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listSetsForWorkout, deleteSet } from "@/lib/db/sets";
 import { getExercise } from "@/lib/db/exercises";
-import { completeWorkout, getWorkoutById, updateWorkoutDetails } from "@/lib/db/workouts";
+import { completeWorkout, deleteWorkout, getWorkoutById, updateWorkoutDetails } from "@/lib/db/workouts";
 import type { Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -49,6 +49,12 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     if (!window.confirm("Delete this set?")) return;
     await deleteSet(setId);
     setSets(await fetchSetRows(workoutId));
+  }
+
+  async function handleDeleteWorkout() {
+    if (!window.confirm("Delete this workout? This can't be undone.")) return;
+    await deleteWorkout(workoutId);
+    router.push("/");
   }
 
   function startEditing() {
@@ -112,14 +118,26 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
         </div>
 
         {workout && (
-          <button
-            type="button"
-            onClick={editing ? commitEdit : startEditing}
-            aria-label={editing ? "Save workout details" : "Edit workout details"}
-            className="pt-1 text-muted hover:text-white"
-          >
-            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-4 pt-1">
+            {!editing && (
+              <button
+                type="button"
+                onClick={handleDeleteWorkout}
+                aria-label="Delete workout"
+                className="text-muted hover:text-accent"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={editing ? commitEdit : startEditing}
+              aria-label={editing ? "Save workout details" : "Edit workout details"}
+              className="text-muted hover:text-white"
+            >
+              {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
+            </button>
+          </div>
         )}
       </div>
 

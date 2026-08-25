@@ -106,3 +106,10 @@ export async function completeWorkout(id: string): Promise<void> {
     .eq("id", id);
   if (error) throw error;
 }
+
+// Cascades to the workout's sets (workout_sets.workout_id ON DELETE CASCADE).
+export async function deleteWorkout(id: string): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from("workouts").delete().eq("id", id);
+  if (error) throw error;
+}

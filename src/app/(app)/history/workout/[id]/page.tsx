@@ -1,17 +1,22 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
+import { deleteWorkout } from "@/lib/db/workouts";
 import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
+import { TrashIcon } from "@/components/icons/trash-icon";
 
 type Group = { exercise: Exercise | undefined; sets: WorkoutSet[] };
 
 export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[id]">) {
   const { id } = use(props.params);
+  const router = useRouter();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     getWorkoutDetail(id).then((detail) => {
@@ -20,6 +25,13 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     });
     getWorkoutCategories(id).then(setCategories);
   }, [id]);
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this workout? This can't be undone.")) return;
+    setDeleting(true);
+    await deleteWorkout(id);
+    router.push("/history");
+  }
 
   if (!workout) {
     return (
@@ -31,7 +43,18 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">History</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-white">History</h1>
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          aria-label="Delete workout"
+          className="text-muted hover:text-accent disabled:opacity-60"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </button>
+      </div>
 
       <div className="rounded-2xl bg-surface p-5">
         <div className="flex items-center justify-between">
