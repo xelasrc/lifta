@@ -35,6 +35,24 @@ export async function getTodaysWorkout(): Promise<Workout | undefined> {
   return data ? mapWorkout(data) : undefined;
 }
 
+export async function listTodaysCompletedWorkouts(): Promise<Workout[]> {
+  const supabase = createClient();
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const { data } = await supabase
+    .from("workouts")
+    .select("*")
+    .gte("started_at", startOfDay.toISOString())
+    .lt("started_at", endOfDay.toISOString())
+    .not("completed_at", "is", null)
+    .order("started_at", { ascending: false });
+
+  return (data ?? []).map(mapWorkout);
+}
+
 export async function createWorkout(title: string): Promise<Workout> {
   const supabase = createClient();
   const {
