@@ -44,7 +44,12 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">History</h1>
+        <div className="flex items-center gap-3">
+          <Link href="/history" aria-label="Back" className="text-2xl font-bold text-white">
+            &lsaquo;
+          </Link>
+          <h1 className="text-2xl font-bold text-white">History</h1>
+        </div>
         <button
           type="button"
           onClick={handleDelete}
