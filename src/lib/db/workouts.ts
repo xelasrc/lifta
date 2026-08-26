@@ -80,6 +80,13 @@ export async function getWorkoutById(id: string): Promise<Workout | undefined> {
   return data ? mapWorkout(data) : undefined;
 }
 
+export async function getWorkoutsByIds(ids: string[]): Promise<Workout[]> {
+  if (ids.length === 0) return [];
+  const supabase = createClient();
+  const { data } = await supabase.from("workouts").select("*").in("id", ids);
+  return (data ?? []).map(mapWorkout);
+}
+
 export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("workouts").update({ title }).eq("id", id);
