@@ -59,7 +59,7 @@ function PlaceholderRow({ text, hint }: { text: string; hint: string }) {
   );
 }
 
-export function ExerciseStatsView({ exerciseId }: { exerciseId: string }) {
+export function ExerciseStatsView({ exerciseId, backHref }: { exerciseId: string; backHref: string }) {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [sets, setSets] = useState<WorkoutSet[] | null>(null);
   const [workouts, setWorkouts] = useState<Map<string, Workout>>(new Map());
@@ -97,7 +97,12 @@ export function ExerciseStatsView({ exerciseId }: { exerciseId: string }) {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">{exercise?.name ?? "Exercise"}</h1>
+      <div className="flex items-center gap-3">
+        <Link href={backHref} aria-label="Back" className="text-2xl font-bold text-white">
+          &lsaquo;
+        </Link>
+        <h1 className="text-2xl font-bold text-white">{exercise?.name ?? "Exercise"}</h1>
+      </div>
 
       <div className="flex flex-col gap-2">
         {bestVolume && (
