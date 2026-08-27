@@ -72,29 +72,27 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
       <div className="flex flex-col gap-6">
         {groups.map((group) => (
-          <div key={group.exercise?.id ?? group.sets[0]?.id} className="flex flex-col gap-2">
+          <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
             {group.exercise ? (
               <Link
                 href={`/history/workout/${id}/exercise/${group.exercise.id}`}
-                className="font-semibold text-white"
+                className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
               >
                 {group.exercise.name} <span className="text-accent">&rsaquo;</span>
               </Link>
             ) : (
-              <p className="font-semibold text-white">Exercise</p>
+              <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
             )}
-            {group.sets.map((set, i) => (
-              <div
-                key={set.id}
-                className="flex items-center justify-between rounded-2xl bg-surface px-4 py-3"
-              >
-                <p className="font-semibold text-white">Set {i + 1}</p>
-                <div className="text-right text-sm text-muted">
-                  <p>Reps: {set.reps}</p>
-                  <p>Weight: {set.weightKg ?? 0}kg</p>
+            <div className="divide-y divide-white/10">
+              {group.sets.map((set, i) => (
+                <div key={set.id} className="flex items-center justify-between py-3">
+                  <p className="font-semibold text-white">Set {i + 1}</p>
+                  <p className="text-sm text-muted">
+                    {set.reps} x {set.weightKg ?? 0}kg
+                  </p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ))}
       </div>

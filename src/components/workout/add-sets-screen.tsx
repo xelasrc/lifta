@@ -3,30 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { listSetsForWorkout, deleteSet } from "@/lib/db/sets";
-import { getExercise } from "@/lib/db/exercises";
+import { deleteSet } from "@/lib/db/sets";
+import { getWorkoutDetail } from "@/lib/db/history";
 import { completeWorkout, deleteWorkout, getWorkoutById, updateWorkoutDetails } from "@/lib/db/workouts";
-import type { Workout, WorkoutSet } from "@/lib/db/types";
+import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
 import { CheckIcon } from "@/components/icons/check-icon";
 
-type SetRow = WorkoutSet & { exerciseName: string };
-
-async function fetchSetRows(workoutId: string): Promise<SetRow[]> {
-  const rows = await listSetsForWorkout(workoutId);
-  return Promise.all(
-    rows.map(async (set) => {
-      const exercise = await getExercise(set.exerciseId);
-      return { ...set, exerciseName: exercise?.name ?? "Exercise" };
-    }),
-  );
-}
+type Group = { exercise: Exercise | undefined; sets: WorkoutSet[] };
 
 export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
   const [workout, setWorkout] = useState<Workout | null>(null);
-  const [sets, setSets] = useState<SetRow[] | null>(null);
+  const [groups, setGroups] = useState<Group[] | null>(null);
   const [ending, setEnding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
@@ -35,7 +25,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
   useEffect(() => {
     getWorkoutById(workoutId).then((w) => setWorkout(w ?? null));
-    fetchSetRows(workoutId).then(setSets);
+    getWorkoutDetail(workoutId).then((detail) => setGroups(detail.groups));
   }, [workoutId]);
 
   async function handleEndWorkout() {
@@ -48,7 +38,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   async function handleDelete(setId: string) {
     if (!window.confirm("Delete this set?")) return;
     await deleteSet(setId);
-    setSets(await fetchSetRows(workoutId));
+    setGroups((await getWorkoutDetail(workoutId)).groups);
   }
 
   async function handleDeleteWorkout() {
@@ -150,36 +140,44 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
         <span className="text-4xl leading-none">+</span>
       </button>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-6">
         <p className="text-sm font-semibold text-muted">Recent sets</p>
 
-        {sets === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
+        {groups === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
 
-        {sets?.length === 0 && <p className="text-sm text-muted">No sets logged yet.</p>}
+        {groups?.length === 0 && <p className="text-sm text-muted">No sets logged yet.</p>}
 
-        {sets?.map((set, i) => (
-          <div
-            key={set.id}
-            className="flex items-center justify-between rounded-2xl bg-surface px-4 py-3"
-          >
-            <div>
-              <p className="font-semibold text-white">
-                {set.exerciseName} · Set {i + 1}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right text-sm text-muted">
-                <p>Reps: {set.reps}</p>
-                <p>Weight: {set.weightKg ?? 0}kg</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(set.id)}
-                aria-label={`Delete ${set.exerciseName} set ${i + 1}`}
-                className="text-muted hover:text-accent"
+        {groups?.map((group) => (
+          <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
+            {group.exercise ? (
+              <Link
+                href={`/history/workout/${workoutId}/exercise/${group.exercise.id}`}
+                className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
               >
-                <TrashIcon className="h-5 w-5" />
-              </button>
+                {group.exercise.name} <span className="text-accent">&rsaquo;</span>
+              </Link>
+            ) : (
+              <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
+            )}
+            <div className="divide-y divide-white/10">
+              {group.sets.map((set, i) => (
+                <div key={set.id} className="flex items-center justify-between py-3">
+                  <p className="font-semibold text-white">Set {i + 1}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm text-muted">
+                      {set.reps} x {set.weightKg ?? 0}kg
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(set.id)}
+                      aria-label={`Delete ${group.exercise?.name ?? "exercise"} set ${i + 1}`}
+                      className="text-muted hover:text-accent"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}

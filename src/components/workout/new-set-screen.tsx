@@ -139,7 +139,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
               </p>
               {loggedSets.map((set, i) => (
                 <p key={i} className="text-sm text-white">
-                  Set {i + 1}: {set.reps} reps @ {set.weightKg}kg
+                  Set {i + 1}: {set.reps} x {set.weightKg}kg
                 </p>
               ))}
             </div>
