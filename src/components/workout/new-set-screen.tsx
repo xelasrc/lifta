@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createSet } from "@/lib/db/sets";
+import { createSet, deleteSet } from "@/lib/db/sets";
 import { createExercise, searchExercises } from "@/lib/db/exercises";
-import type { Exercise } from "@/lib/db/types";
+import type { Exercise, WorkoutSet } from "@/lib/db/types";
 import { NumberPicker } from "@/components/workout/number-picker";
+import { ExerciseStatsPanel } from "@/components/exercise-stats-panel";
+import { TrashIcon } from "@/components/icons/trash-icon";
 
 export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
@@ -16,7 +18,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const [weight, setWeight] = useState(20);
   const [reps, setReps] = useState(8);
   const [saving, setSaving] = useState(false);
-  const [loggedSets, setLoggedSets] = useState<{ reps: number; weightKg: number | null }[]>([]);
+  const [loggedSets, setLoggedSets] = useState<WorkoutSet[]>([]);
   const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
@@ -41,11 +43,17 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   async function handleAddSet() {
     if (!selected) return;
     setSaving(true);
-    await createSet({ workoutId, exerciseId: selected.id, reps, weightKg: weight });
-    setLoggedSets((prev) => [...prev, { reps, weightKg: weight }]);
+    const set = await createSet({ workoutId, exerciseId: selected.id, reps, weightKg: weight });
+    setLoggedSets((prev) => [...prev, set]);
     setSaving(false);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1200);
+  }
+
+  async function handleDeleteLoggedSet(setId: string) {
+    if (!window.confirm("Delete this set?")) return;
+    await deleteSet(setId);
+    setLoggedSets((prev) => prev.filter((s) => s.id !== setId));
   }
 
   function handleDone() {
@@ -53,7 +61,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Exercise</h1>
         <button
@@ -138,12 +146,28 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 Logged for {selected.name} ({loggedSets.length})
               </p>
               {loggedSets.map((set, i) => (
-                <p key={i} className="text-sm text-white">
-                  Set {i + 1}: {set.reps} x {set.weightKg}kg
-                </p>
+                <div key={set.id} className="flex items-center justify-between">
+                  <p className="text-sm text-white">
+                    Set {i + 1}: {set.reps} x {set.weightKg}kg
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteLoggedSet(set.id)}
+                    aria-label={`Delete set ${i + 1}`}
+                    className="text-muted hover:text-accent"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
               ))}
             </div>
           )}
+
+          <ExerciseStatsPanel
+            exerciseId={selected.id}
+            refreshToken={loggedSets.length}
+            excludeWorkoutId={workoutId}
+          />
         </>
       )}
     </div>
