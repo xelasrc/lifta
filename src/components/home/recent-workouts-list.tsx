@@ -14,7 +14,7 @@ export function RecentWorkoutsList() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xl font-semibold text-white">Recent workouts</p>
+      <p className="text-base font-medium text-white">Recent workouts</p>
 
       {workouts === null && <div className="h-16 animate-pulse rounded-full bg-surface" />}
 
@@ -29,16 +29,16 @@ export function RecentWorkoutsList() {
           className="flex items-center justify-between gap-3 rounded-full border border-accent px-5 py-4"
         >
           <div className="flex items-center gap-4">
-            <span className="text-lg font-bold text-white">
+            <span className="text-sm font-semibold text-white">
               {new Date(workout.startedAt).toLocaleDateString(undefined, {
                 month: "numeric",
                 day: "numeric",
                 year: "2-digit",
               })}
             </span>
-            <p className="font-semibold text-white">{workout.title}</p>
+            <p className="text-sm font-medium text-white">{workout.title}</p>
           </div>
-          <span aria-hidden className="flex text-xl font-bold leading-none">
+          <span aria-hidden className="flex text-lg font-bold leading-none">
             <span className="text-white">&rsaquo;</span>
             <span className="text-white/60">&rsaquo;</span>
             <span className="text-white/30">&rsaquo;</span>
