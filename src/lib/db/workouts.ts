@@ -87,10 +87,11 @@ export async function getWorkoutsByIds(ids: string[]): Promise<Workout[]> {
   return (data ?? []).map(mapWorkout);
 }
 
-export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from("workouts").update({ title }).eq("id", id);
-  if (error) throw error;
+// The workout's display name is derived from its split day rather than
+// entered separately — "legs" becomes "Legs", empty becomes "Workout".
+export function deriveWorkoutTitle(splitDay: string | null): string {
+  if (!splitDay) return "Workout";
+  return `${splitDay.charAt(0).toUpperCase()}${splitDay.slice(1)}`;
 }
 
 export async function updateWorkoutDetails(

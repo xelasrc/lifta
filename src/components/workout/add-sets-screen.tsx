@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { deleteSet } from "@/lib/db/sets";
 import { getWorkoutDetail } from "@/lib/db/history";
-import { completeWorkout, deleteWorkout, getWorkoutById, updateWorkoutDetails } from "@/lib/db/workouts";
+import {
+  completeWorkout,
+  deleteWorkout,
+  deriveWorkoutTitle,
+  getWorkoutById,
+  updateWorkoutDetails,
+} from "@/lib/db/workouts";
 import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -19,9 +25,8 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const [groups, setGroups] = useState<Group[] | null>(null);
   const [ending, setEnding] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [titleDraft, setTitleDraft] = useState("");
   const [splitDayDraft, setSplitDayDraft] = useState("");
-  const titleInputRef = useRef<HTMLInputElement>(null);
+  const splitDayInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getWorkoutById(workoutId).then((w) => setWorkout(w ?? null));
@@ -49,16 +54,15 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
   function startEditing() {
     if (!workout) return;
-    setTitleDraft(workout.title);
     setSplitDayDraft(workout.splitDay ?? "");
     setEditing(true);
-    requestAnimationFrame(() => titleInputRef.current?.select());
+    requestAnimationFrame(() => splitDayInputRef.current?.select());
   }
 
   async function commitEdit() {
     if (!workout) return;
-    const title = titleDraft.trim() || workout.title;
     const splitDay = splitDayDraft.trim() || null;
+    const title = deriveWorkoutTitle(splitDay);
     setWorkout({ ...workout, title, splitDay });
     setEditing(false);
     await updateWorkoutDetails(workoutId, { title, splitDay });
@@ -79,28 +83,16 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
           {workout ? (
             editing ? (
-              <div className="flex flex-1 flex-col gap-2 pt-0.5">
-                <input
-                  ref={titleInputRef}
-                  value={titleDraft}
-                  onChange={(event) => setTitleDraft(event.target.value)}
-                  onKeyDown={handleEditKeyDown}
-                  placeholder="Workout name"
-                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
-                />
-                <input
-                  value={splitDayDraft}
-                  onChange={(event) => setSplitDayDraft(event.target.value)}
-                  onKeyDown={handleEditKeyDown}
-                  placeholder="Split day (e.g. Push)"
-                  className="border-b border-white/20 bg-transparent pb-1 text-sm font-semibold text-accent outline-none"
-                />
-              </div>
+              <input
+                ref={splitDayInputRef}
+                value={splitDayDraft}
+                onChange={(event) => setSplitDayDraft(event.target.value)}
+                onKeyDown={handleEditKeyDown}
+                placeholder="Split day (e.g. Push, Legs)"
+                className="flex-1 border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
+              />
             ) : (
-              <div>
-                <p className="text-2xl font-bold text-white">{workout.title}</p>
-                {workout.splitDay && <p className="text-sm font-semibold text-accent">{workout.splitDay}</p>}
-              </div>
+              <p className="text-2xl font-bold text-white">{workout.title}</p>
             )
           ) : (
             <div className="h-8 w-40 animate-pulse rounded bg-surface" />

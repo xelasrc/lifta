@@ -66,7 +66,6 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
           <p className="text-xl font-bold text-white">{workout.title}</p>
           <p className="text-sm text-muted">{new Date(workout.startedAt).toLocaleDateString()}</p>
         </div>
-        {workout.splitDay && <p className="mt-1 text-sm font-semibold text-accent">{workout.splitDay}</p>}
         {categories.length > 0 && <p className="mt-1 text-sm text-accent">{categories.join(", ")}</p>}
       </div>
 
