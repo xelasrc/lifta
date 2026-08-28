@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-const HANDLE_WIDTH = 132;
+const HANDLE_WIDTH = 152;
 const COMPLETE_THRESHOLD = 0.75;
 
 export function SlideToStart({
@@ -87,7 +87,7 @@ export function SlideToStart({
         }`}
         style={{ width: HANDLE_WIDTH, transform: `translateX(${dragX}px)` }}
       >
-        <span>{label}</span>
+        <span className="whitespace-nowrap">{label}</span>
         <span className="text-lg">›</span>
       </div>
     </div>
