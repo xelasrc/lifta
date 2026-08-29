@@ -115,7 +115,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
               type="button"
               onClick={editing ? commitEdit : startEditing}
               aria-label={editing ? "Save workout details" : "Edit workout details"}
-              className="text-muted hover:text-white"
+              className={editing ? "text-accent" : "text-muted hover:text-white"}
             >
               {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
             </button>

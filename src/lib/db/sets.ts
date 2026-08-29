@@ -47,3 +47,15 @@ export async function deleteSet(id: string): Promise<void> {
   const { error } = await supabase.from("workout_sets").delete().eq("id", id);
   if (error) throw error;
 }
+
+export async function updateSet(
+  id: string,
+  updates: { reps: number; weightKg: number | null },
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("workout_sets")
+    .update({ reps: updates.reps, weight_kg: updates.weightKg })
+    .eq("id", id);
+  if (error) throw error;
+}
