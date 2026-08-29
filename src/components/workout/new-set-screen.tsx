@@ -8,6 +8,7 @@ import type { Exercise, WorkoutSet } from "@/lib/db/types";
 import { NumberPicker } from "@/components/workout/number-picker";
 import { ExerciseStatsPanel } from "@/components/exercise-stats-panel";
 import { TrashIcon } from "@/components/icons/trash-icon";
+import { getSettings } from "@/lib/settings";
 
 export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
@@ -15,8 +16,8 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Exercise[]>([]);
   const [selected, setSelected] = useState<Exercise | null>(null);
-  const [weight, setWeight] = useState(20);
-  const [reps, setReps] = useState(8);
+  const [weight, setWeight] = useState(() => getSettings().defaultWeightKg);
+  const [reps, setReps] = useState(() => getSettings().defaultReps);
   const [saving, setSaving] = useState(false);
   const [loggedSets, setLoggedSets] = useState<WorkoutSet[]>([]);
   const [justAdded, setJustAdded] = useState(false);
