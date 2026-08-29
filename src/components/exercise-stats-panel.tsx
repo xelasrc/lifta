@@ -23,6 +23,11 @@ function groupByWorkout(sets: WorkoutSet[]): { workoutId: string; sets: WorkoutS
     if (group) group.sets.push(set);
     else groups.push({ workoutId: set.workoutId, sets: [set] });
   }
+  // `sets` arrives newest-workout-first (for group ordering), which also
+  // reverses each workout's own sets — restore Set 1, Set 2, ... order.
+  for (const group of groups) {
+    group.sets.sort((a, b) => a.order - b.order);
+  }
   return groups;
 }
 
