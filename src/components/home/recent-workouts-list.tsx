@@ -14,7 +14,7 @@ export function RecentWorkoutsList() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-base font-medium text-white">Recent workouts</p>
+      <p className="text-base font-medium text-white">Recent Workouts</p>
 
       {workouts === null && <div className="h-16 animate-pulse rounded-full bg-surface" />}
 

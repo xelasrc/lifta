@@ -30,6 +30,13 @@ export function TodaysWorkoutCard() {
   const [lastWorkout, setLastWorkout] = useState<Workout | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    if (!workout) return;
+    const interval = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(interval);
+  }, [workout]);
 
   useEffect(() => {
     getTodaysWorkout().then(async (found) => {
@@ -38,18 +45,18 @@ export function TodaysWorkoutCard() {
         router.prefetch(`/workout/${found.id}`);
         router.prefetch(`/workout/${found.id}/new-set`);
         setProgress(await getProgress(found.id));
-      } else {
-        const completed = await listTodaysCompletedWorkouts();
-        setCompletedToday(completed);
-        if (completed.length > 0) {
-          const entries = await Promise.all(
-            completed.map(async (w) => [w.id, await getProgress(w.id)] as const),
-          );
-          setCompletedProgress(new Map(entries));
-        } else {
-          const [recent] = await listRecentWorkouts(1);
-          setLastWorkout(recent ?? null);
-        }
+      }
+
+      const completed = await listTodaysCompletedWorkouts();
+      setCompletedToday(completed);
+      if (completed.length > 0) {
+        const entries = await Promise.all(
+          completed.map(async (w) => [w.id, await getProgress(w.id)] as const),
+        );
+        setCompletedProgress(new Map(entries));
+      } else if (!found) {
+        const [recent] = await listRecentWorkouts(1);
+        setLastWorkout(recent ?? null);
       }
       setLoaded(true);
     });
@@ -67,41 +74,55 @@ export function TodaysWorkoutCard() {
 
   return (
     <div className="flex flex-col gap-4">
-      {workout ? (
-        <div className="rounded-2xl border-l-4 border-accent bg-surface p-5">
-          <p className="text-sm font-semibold text-muted">Today&apos;s Workout</p>
-          <p className="text-xl font-bold text-white">{workout.title}</p>
-          {progress && (progress.exercises > 0 || progress.sets > 0) && (
-            <p className="mt-1 text-xs text-muted">{progressLabel(progress)}</p>
-          )}
-        </div>
-      ) : completedToday.length > 0 ? (
+      {workout || completedToday.length > 0 ? (
         <div className="flex flex-col gap-3 rounded-2xl bg-surface p-5">
-          <p className="text-sm font-semibold text-muted">
-            {completedToday.length > 1 ? "Today's workouts" : "Today's workout"}
-          </p>
-          {completedToday.map((w) => {
-            const p = completedProgress.get(w.id);
-            const details = [formatDuration(w.startedAt, w.completedAt ?? w.startedAt), p && progressLabel(p)]
-              .filter(Boolean)
-              .join(" · ");
-            return (
-              <Link
-                key={w.id}
-                href={`/history/workout/${w.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl py-1 text-white hover:text-accent"
-              >
-                <div className="flex items-start gap-2">
-                  <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-accent" />
-                  <div>
-                    <p className="font-bold">{w.title}</p>
-                    {details && <p className="text-xs text-muted">{details}</p>}
-                  </div>
+          {completedToday.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm font-semibold text-muted">Today&apos;s Workouts</p>
+              {completedToday.map((w) => {
+                const p = completedProgress.get(w.id);
+                const details = [
+                  formatDuration(w.startedAt, w.completedAt ?? w.startedAt),
+                  p && progressLabel(p),
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
+                return (
+                  <Link
+                    key={w.id}
+                    href={`/history/workout/${w.id}`}
+                    className="flex items-center justify-between gap-3 rounded-xl py-1 text-white hover:text-accent"
+                  >
+                    <div className="flex items-start gap-2">
+                      <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-accent" />
+                      <div>
+                        <p className="font-bold">{w.title}</p>
+                        {details && <p className="text-xs text-muted">{details}</p>}
+                      </div>
+                    </div>
+                    <span className="text-accent">&rsaquo;</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+          {workout && (
+            <div className={completedToday.length > 0 ? "mt-1 border-t border-white/10 pt-3" : ""}>
+              <p className="text-sm font-semibold text-muted">In Progress</p>
+              <div className="mt-2 flex items-start gap-2 py-1 text-white">
+                <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center">
+                  <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-accent" />
+                </span>
+                <div>
+                  <p className="font-bold">{workout.title}</p>
+                  <p className="text-xs text-muted">
+                    {formatDuration(workout.startedAt, now.toISOString())} ·{" "}
+                    {progressLabel(progress ?? { exercises: 0, sets: 0 })}
+                  </p>
                 </div>
-                <span className="text-accent">&rsaquo;</span>
-              </Link>
-            );
-          })}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="rounded-2xl bg-surface p-5">
@@ -113,11 +134,22 @@ export function TodaysWorkoutCard() {
           )}
         </div>
       )}
-      <SlideToStart
-        label={workout ? "Continue" : completedToday.length > 0 ? "New Workout" : "Start"}
-        onComplete={handleStart}
-        disabled={starting}
-      />
+      {workout ? (
+        <button
+          type="button"
+          onClick={handleStart}
+          disabled={starting}
+          className="rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
+        >
+          Continue
+        </button>
+      ) : (
+        <SlideToStart
+          label={completedToday.length > 0 ? "New Workout" : "Start"}
+          onComplete={handleStart}
+          disabled={starting}
+        />
+      )}
     </div>
   );
 }
