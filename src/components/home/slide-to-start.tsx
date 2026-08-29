@@ -15,6 +15,7 @@ export function SlideToStart({
   disabled?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const grabOffsetRef = useRef(0);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [settling, setSettling] = useState(false);
@@ -27,13 +28,17 @@ export function SlideToStart({
   function handlePointerDown(event: React.PointerEvent) {
     if (disabled || settling) return;
     setDragging(true);
+    // Track where within the handle the finger landed so the handle tracks
+    // the finger 1:1 instead of re-centering under it on the first move.
+    grabOffsetRef.current = event.clientX - (trackRef.current?.getBoundingClientRect().left ?? 0) - dragX;
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent) {
     if (!dragging || !trackRef.current) return;
+    event.preventDefault();
     const rect = trackRef.current.getBoundingClientRect();
-    const x = event.clientX - rect.left - HANDLE_WIDTH / 2 - 4;
+    const x = event.clientX - rect.left - grabOffsetRef.current;
     setDragX(Math.min(Math.max(x, 0), maxX()));
   }
 
@@ -82,7 +87,7 @@ export function SlideToStart({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
-        className={`absolute top-1 bottom-1 left-1 flex items-center justify-center gap-1 rounded-full bg-accent px-4 font-bold text-white outline-none focus-visible:ring-2 focus-visible:ring-white ${
+        className={`absolute top-1 bottom-1 left-1 flex touch-none items-center justify-center gap-1 rounded-full bg-accent px-4 font-bold text-white outline-none select-none focus-visible:ring-2 focus-visible:ring-white [-webkit-tap-highlight-color:transparent] ${
           dragging ? "" : "transition-transform duration-200 ease-out"
         }`}
         style={{ width: HANDLE_WIDTH, transform: `translateX(${dragX}px)` }}
