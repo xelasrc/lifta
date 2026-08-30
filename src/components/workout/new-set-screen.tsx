@@ -115,19 +115,55 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         <>
           <div>
             <p className="mb-2 text-sm font-semibold text-muted">Weight (kg)</p>
-            <NumberPicker
-              min={0}
-              max={300}
-              step={0.5}
-              value={weight}
-              onChange={setWeight}
-              format={(v) => `${v}`}
-            />
+            <div className="flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => setWeight((w) => Math.max(0, w - 5))}
+                aria-label="Decrease weight by 5"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+              >
+                -5
+              </button>
+              <NumberPicker
+                min={0}
+                max={300}
+                step={0.5}
+                value={weight}
+                onChange={setWeight}
+                format={(v) => `${v}`}
+              />
+              <button
+                type="button"
+                onClick={() => setWeight((w) => Math.min(300, w + 5))}
+                aria-label="Increase weight by 5"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+              >
+                +5
+              </button>
+            </div>
           </div>
 
           <div>
             <p className="mb-2 text-sm font-semibold text-muted">Reps</p>
-            <NumberPicker min={0} max={50} step={1} value={reps} onChange={setReps} />
+            <div className="flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => setReps((r) => Math.max(0, r - 5))}
+                aria-label="Decrease reps by 5"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+              >
+                -5
+              </button>
+              <NumberPicker min={0} max={50} step={1} value={reps} onChange={setReps} />
+              <button
+                type="button"
+                onClick={() => setReps((r) => Math.min(50, r + 5))}
+                aria-label="Increase reps by 5"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+              >
+                +5
+              </button>
+            </div>
           </div>
 
           <button
