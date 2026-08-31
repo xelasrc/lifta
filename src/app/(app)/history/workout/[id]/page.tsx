@@ -29,7 +29,6 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
   const [repsDraft, setRepsDraft] = useState("");
   const [weightDraft, setWeightDraft] = useState("");
-  const [partialRepsDraft, setPartialRepsDraft] = useState("");
 
   function refresh() {
     getWorkoutDetail(id).then((detail) => {
@@ -74,15 +73,13 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     setEditingSetId(set.id);
     setRepsDraft(String(set.reps));
     setWeightDraft(String(set.weightKg ?? 0));
-    setPartialRepsDraft(String(set.partialReps ?? 0));
   }
 
   async function commitEditSet(setId: string) {
     const reps = Math.max(0, Math.round(Number(repsDraft)) || 0);
     const weightKg = Math.max(0, Number(weightDraft)) || 0;
-    const partialReps = Math.max(0, Math.round(Number(partialRepsDraft)) || 0) || null;
     setEditingSetId(null);
-    await updateSet(setId, { reps, weightKg, partialReps });
+    await updateSet(setId, { reps, weightKg });
     refresh();
   }
 
@@ -122,13 +119,6 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
               className="w-16 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
             />
             <span className="text-sm text-muted">kg</span>
-            <span className="text-sm text-muted">+</span>
-            <input
-              type="number"
-              value={partialRepsDraft}
-              onChange={(event) => setPartialRepsDraft(event.target.value)}
-              className="w-10 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
-            />
             <button
               type="button"
               onClick={() => commitEditSet(set.id)}
@@ -192,15 +182,25 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
           </Link>
           <h1 className="text-2xl font-bold text-white">History</h1>
         </div>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={deleting}
-          aria-label="Delete workout"
-          className="text-muted hover:text-accent disabled:opacity-60"
-        >
-          <TrashIcon className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={editing ? commitEdit : startEditing}
+            aria-label={editing ? "Save workout details" : "Edit workout details"}
+            className={editing ? "text-accent" : "text-muted hover:text-white"}
+          >
+            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            aria-label="Delete workout"
+            className="text-muted hover:text-accent disabled:opacity-60"
+          >
+            <TrashIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       <div className="rounded-2xl bg-surface p-5">
@@ -217,19 +217,9 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
           ) : (
             <p className="text-xl font-bold text-white">{workout.title}</p>
           )}
-          <div className="flex shrink-0 items-center gap-3">
-            <p className="whitespace-nowrap text-sm text-muted">
-              {new Date(workout.startedAt).toLocaleDateString()}
-            </p>
-            <button
-              type="button"
-              onClick={editing ? commitEdit : startEditing}
-              aria-label={editing ? "Save workout details" : "Edit workout details"}
-              className={editing ? "text-accent" : "text-muted hover:text-white"}
-            >
-              {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
-            </button>
-          </div>
+          <p className="shrink-0 whitespace-nowrap text-sm text-muted">
+            {new Date(workout.startedAt).toLocaleDateString()}
+          </p>
         </div>
         {categories.length > 0 && <p className="mt-1 text-sm text-accent">{categories.join(", ")}</p>}
       </div>
