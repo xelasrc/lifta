@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getTodaysWorkout, getOrCreateTodaysWorkout, listTodaysCompletedWorkouts, listRecentWorkouts } from "@/lib/db/workouts";
+import { getTodaysWorkout, getOrCreateTodaysWorkout, listTodaysCompletedWorkouts } from "@/lib/db/workouts";
 import { getWorkoutDetail } from "@/lib/db/history";
 import type { Workout } from "@/lib/db/types";
 import { SlideToStart } from "./slide-to-start";
 import { CheckIcon } from "@/components/icons/check-icon";
-import { formatRelativeDay, formatDuration } from "@/lib/date";
+import { formatDuration } from "@/lib/date";
 
 type Progress = { exercises: number; sets: number; cardio: number };
 
@@ -32,7 +32,6 @@ export function TodaysWorkoutCard() {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [completedToday, setCompletedToday] = useState<Workout[]>([]);
   const [completedProgress, setCompletedProgress] = useState<Map<string, Progress>>(new Map());
-  const [lastWorkout, setLastWorkout] = useState<Workout | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [starting, setStarting] = useState(false);
   const [now, setNow] = useState(() => new Date());
@@ -59,9 +58,6 @@ export function TodaysWorkoutCard() {
           completed.map(async (w) => [w.id, await getProgress(w.id)] as const),
         );
         setCompletedProgress(new Map(entries));
-      } else if (!found) {
-        const [recent] = await listRecentWorkouts(1);
-        setLastWorkout(recent ?? null);
       }
       setLoaded(true);
     });
@@ -132,11 +128,6 @@ export function TodaysWorkoutCard() {
       ) : (
         <div className="rounded-2xl bg-surface p-5">
           <p className="text-sm font-semibold text-muted">No workout yet today</p>
-          {lastWorkout && (
-            <p className="mt-1 text-xs text-muted">
-              Last: {lastWorkout.title} · {formatRelativeDay(lastWorkout.startedAt)}
-            </p>
-          )}
         </div>
       )}
       {workout ? (
