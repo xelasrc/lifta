@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { listSetsForExercise } from "@/lib/db/history";
 import { getWorkoutsByIds } from "@/lib/db/workouts";
 import { groupIntoChains } from "@/lib/db/set-chains";
+import { ChevronDownIcon } from "@/components/icons/chevron-down-icon";
 import type { Workout, WorkoutSet } from "@/lib/db/types";
 
 function volumeOf(set: WorkoutSet): number {
@@ -32,10 +33,13 @@ function groupByWorkout(sets: WorkoutSet[]): { workoutId: string; sets: WorkoutS
   return groups;
 }
 
-function RecordTile({ value, label }: { value: string; label: string }) {
+function RecordTile({ value, breakdown, label }: { value: string; breakdown?: string; label: string }) {
   return (
-    <div className="rounded-2xl bg-surface p-4">
-      <p className="text-xl font-bold text-accent">{value}</p>
+    <div className="rounded-2xl bg-white/5 p-4">
+      <p className="text-xl font-bold text-accent">
+        {value}
+        {breakdown && <span className="ml-1 text-sm font-medium text-muted">({breakdown})</span>}
+      </p>
       <p className="text-xs text-muted">{label}</p>
     </div>
   );
@@ -56,6 +60,7 @@ export function ExerciseStatsPanel({
 }) {
   const [sets, setSets] = useState<WorkoutSet[] | null>(null);
   const [workouts, setWorkouts] = useState<Map<string, Workout>>(new Map());
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     listSetsForExercise(exerciseId).then(async (rows) => {
@@ -82,47 +87,70 @@ export function ExerciseStatsPanel({
     (s) => s.weightKg ?? 0,
   );
   const previousSets = excludeWorkoutId ? sets.filter((s) => s.workoutId !== excludeWorkoutId) : sets;
-  const groups = groupByWorkout(previousSets);
+  // `previousSets` is ordered newest-first, so the first group here is the
+  // most recent workout that included this exercise -- only that one shows.
+  const groups = groupByWorkout(previousSets).slice(0, 1);
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-sm font-semibold text-muted">Personal Records</p>
-      <div className="grid grid-cols-2 gap-3">
-        <RecordTile value={bestVolume ? `${volumeOf(bestVolume)}kg` : "—"} label="Volume" />
-        <RecordTile value={best1RM ? `${best1RM.weightKg ?? 0}kg` : "—"} label="1RM" />
-      </div>
+    <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4">
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        aria-expanded={expanded}
+        className="flex items-center justify-between"
+      >
+        <p className="text-sm font-semibold text-muted">Exercise Stats</p>
+        <ChevronDownIcon
+          className={`h-4 w-4 text-accent transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
 
-      {previousSets.length === 0 && <p className="text-sm text-muted">No history yet.</p>}
-      {groups.map((group) => {
-        const workout = workouts.get(group.workoutId);
-        return (
-          <div key={group.workoutId} className="flex flex-col gap-2 rounded-2xl bg-surface p-4">
-            <div className="flex items-center justify-between">
-              <p className="font-semibold text-white">{workout?.title ?? "Workout"}</p>
-              <p className="text-sm text-muted">{new Date(group.sets[0].createdAt).toLocaleDateString()}</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              {groupIntoChains(group.sets).map((chain, i) => (
-                <div key={chain.parent.id} className="flex flex-col gap-1">
-                  <p className="text-sm text-muted">
-                    Set {i + 1}: {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
-                    {chain.parent.partialReps ? ` +${chain.parent.partialReps} partial` : ""}
-                  </p>
-                  {chain.drops.map((drop) => (
-                    <p key={drop.id} className="flex items-center gap-2 pl-4 text-sm text-muted">
-                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
-                        Drop
-                      </span>
-                      {drop.reps} x {drop.weightKg ?? 0}kg
-                      {drop.partialReps ? ` +${drop.partialReps} partial` : ""}
-                    </p>
+      {expanded && (
+        <>
+          <p className="text-sm font-semibold text-muted">Personal Records</p>
+          <div className="grid grid-cols-2 gap-3">
+            <RecordTile
+              value={bestVolume ? `${volumeOf(bestVolume)}kg` : "—"}
+              breakdown={bestVolume ? `${bestVolume.reps} x ${bestVolume.weightKg ?? 0}kg` : undefined}
+              label="Volume"
+            />
+            <RecordTile value={best1RM ? `${best1RM.weightKg ?? 0}kg` : "—"} label="1RM" />
+          </div>
+
+          <p className="text-sm font-semibold text-muted">Previous</p>
+          {previousSets.length === 0 && <p className="text-sm text-muted">No history yet.</p>}
+          {groups.map((group) => {
+            const workout = workouts.get(group.workoutId);
+            return (
+              <div key={group.workoutId} className="flex flex-col gap-2 rounded-2xl bg-white/5 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-white">{workout?.title ?? "Workout"}</p>
+                  <p className="text-sm text-muted">{new Date(group.sets[0].createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  {groupIntoChains(group.sets).map((chain, i) => (
+                    <div key={chain.parent.id} className="flex flex-col gap-1">
+                      <p className="text-sm text-muted">
+                        Set {i + 1}: {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
+                        {chain.parent.partialReps ? ` +${chain.parent.partialReps} partial` : ""}
+                      </p>
+                      {chain.drops.map((drop) => (
+                        <p key={drop.id} className="flex items-center gap-2 pl-4 text-sm text-muted">
+                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
+                            Drop
+                          </span>
+                          {drop.reps} x {drop.weightKg ?? 0}kg
+                          {drop.partialReps ? ` +${drop.partialReps} partial` : ""}
+                        </p>
+                      ))}
+                    </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
+              </div>
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }
