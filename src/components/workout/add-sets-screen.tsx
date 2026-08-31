@@ -138,7 +138,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
       </button>
 
       <div className="flex flex-col gap-6">
-        <p className="text-sm font-semibold text-muted">Recent sets</p>
+        <p className="text-sm font-semibold text-muted">Sets</p>
 
         {groups === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
 
