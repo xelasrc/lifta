@@ -39,7 +39,6 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const [loggedSets, setLoggedSets] = useState<WorkoutSet[]>([]);
   const [justAdded, setJustAdded] = useState(false);
   const [pendingDropParentId, setPendingDropParentId] = useState<string | null>(null);
-  const [showPartials, setShowPartials] = useState(false);
   const [partialReps, setPartialReps] = useState(0);
   const [partialRepsEnabled, setPartialRepsEnabled] = useState(DEFAULT_SETTINGS.partialRepsEnabled);
 
@@ -66,7 +65,6 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
     setSuggestions([]);
     setLoggedSets([]);
     setPendingDropParentId(null);
-    setShowPartials(false);
     setPartialReps(0);
   }
 
@@ -99,12 +97,11 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
       weightKg: weight,
       type: pendingDropParentId ? "drop" : "normal",
       parentSetId: pendingDropParentId,
-      partialReps: showPartials && partialReps > 0 ? partialReps : null,
+      partialReps: partialRepsEnabled && partialReps > 0 ? partialReps : null,
     });
     setLoggedSets((prev) => [...prev, set]);
     setSaving(false);
     setPendingDropParentId(null);
-    setShowPartials(false);
     setPartialReps(0);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1200);
@@ -244,33 +241,9 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
             </div>
           </div>
 
-          {partialRepsEnabled &&
-            (showPartials ? (
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <Stepper label="Partial reps" value={partialReps} onChange={setPartialReps} min={0} max={20} step={1} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPartials(false);
-                    setPartialReps(0);
-                  }}
-                  aria-label="Remove partial reps"
-                  className="text-lg text-muted hover:text-white"
-                >
-                  ×
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowPartials(true)}
-                className="self-start text-sm font-semibold text-accent"
-              >
-                + Add partial reps
-              </button>
-            ))}
+          {partialRepsEnabled && (
+            <Stepper label="Partial Reps" value={partialReps} onChange={setPartialReps} min={0} max={20} step={1} />
+          )}
 
           <button
             type="button"
