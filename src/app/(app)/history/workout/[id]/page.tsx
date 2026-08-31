@@ -185,20 +185,20 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={editing ? commitEdit : startEditing}
-            aria-label={editing ? "Save workout details" : "Edit workout details"}
-            className={editing ? "text-accent" : "text-muted hover:text-white"}
-          >
-            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
-          </button>
-          <button
-            type="button"
             onClick={handleDelete}
             disabled={deleting}
             aria-label="Delete workout"
             className="text-muted hover:text-accent disabled:opacity-60"
           >
             <TrashIcon className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={editing ? commitEdit : startEditing}
+            aria-label={editing ? "Save workout details" : "Edit workout details"}
+            className={editing ? "text-accent" : "text-muted hover:text-white"}
+          >
+            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
           </button>
         </div>
       </div>
