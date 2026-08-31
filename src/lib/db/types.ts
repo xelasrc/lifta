@@ -29,3 +29,14 @@ export interface WorkoutSet {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CardioActivity {
+  id: string;
+  workoutId: string;
+  activityType: string;
+  durationMinutes: number;
+  distanceKm: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

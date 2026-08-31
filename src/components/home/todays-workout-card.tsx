@@ -10,15 +10,20 @@ import { SlideToStart } from "./slide-to-start";
 import { CheckIcon } from "@/components/icons/check-icon";
 import { formatRelativeDay, formatDuration } from "@/lib/date";
 
-type Progress = { exercises: number; sets: number };
+type Progress = { exercises: number; sets: number; cardio: number };
 
 async function getProgress(workoutId: string): Promise<Progress> {
-  const { groups } = await getWorkoutDetail(workoutId);
-  return { exercises: groups.length, sets: groups.reduce((sum, g) => sum + g.sets.length, 0) };
+  const { groups, cardioActivities } = await getWorkoutDetail(workoutId);
+  return {
+    exercises: groups.length,
+    sets: groups.reduce((sum, g) => sum + g.sets.length, 0),
+    cardio: cardioActivities.length,
+  };
 }
 
-function progressLabel({ exercises, sets }: Progress): string {
-  return `${exercises} exercise${exercises === 1 ? "" : "s"} · ${sets} set${sets === 1 ? "" : "s"}`;
+function progressLabel({ exercises, sets, cardio }: Progress): string {
+  const base = `${exercises} exercise${exercises === 1 ? "" : "s"} · ${sets} set${sets === 1 ? "" : "s"}`;
+  return cardio > 0 ? `${base} · ${cardio} cardio` : base;
 }
 
 export function TodaysWorkoutCard() {
@@ -117,7 +122,7 @@ export function TodaysWorkoutCard() {
                   <p className="font-bold">{workout.title}</p>
                   <p className="text-xs text-muted">
                     {formatDuration(workout.startedAt, now.toISOString())} ·{" "}
-                    {progressLabel(progress ?? { exercises: 0, sets: 0 })}
+                    {progressLabel(progress ?? { exercises: 0, sets: 0, cardio: 0 })}
                   </p>
                 </div>
               </div>

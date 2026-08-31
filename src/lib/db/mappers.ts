@@ -1,9 +1,10 @@
 import type { Database } from "@/lib/supabase/types";
-import type { Exercise, Workout, WorkoutSet } from "./types";
+import type { CardioActivity, Exercise, Workout, WorkoutSet } from "./types";
 
 type WorkoutRow = Database["public"]["Tables"]["workouts"]["Row"];
 type ExerciseRow = Database["public"]["Tables"]["exercises"]["Row"];
 type WorkoutSetRow = Database["public"]["Tables"]["workout_sets"]["Row"];
+type CardioActivityRow = Database["public"]["Tables"]["cardio_activities"]["Row"];
 
 export function mapWorkout(row: WorkoutRow): Workout {
   return {
@@ -38,6 +39,19 @@ export function mapWorkoutSet(row: WorkoutSetRow): WorkoutSet {
     type: row.type,
     parentSetId: row.parent_set_id,
     partialReps: row.partial_reps,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapCardioActivity(row: CardioActivityRow): CardioActivity {
+  return {
+    id: row.id,
+    workoutId: row.workout_id,
+    activityType: row.activity_type,
+    durationMinutes: row.duration_minutes,
+    distanceKm: row.distance_km,
+    notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

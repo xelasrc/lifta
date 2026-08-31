@@ -77,6 +77,32 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["workout_sets"]["Insert"]>;
         Relationships: [];
       };
+      cardio_activities: {
+        Row: {
+          id: string;
+          user_id: string;
+          workout_id: string;
+          activity_type: string;
+          duration_minutes: number;
+          distance_km: number | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          workout_id: string;
+          activity_type: string;
+          duration_minutes: number;
+          distance_km?: number | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["cardio_activities"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

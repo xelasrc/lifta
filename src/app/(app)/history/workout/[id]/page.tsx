@@ -7,10 +7,12 @@ import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
 import { deleteWorkout, deriveWorkoutTitle, updateWorkoutDetails } from "@/lib/db/workouts";
 import { deleteSet, updateSet } from "@/lib/db/sets";
 import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
-import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
+import type { CardioActivity, Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
 import { CheckIcon } from "@/components/icons/check-icon";
+import { CardioActivityCard } from "@/components/workout/cardio-activity-card";
+import { AddCardioForm } from "@/components/workout/add-cardio-form";
 
 type Group = { exercise: Exercise | undefined; sets: WorkoutSet[] };
 
@@ -19,6 +21,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   const router = useRouter();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [cardioActivities, setCardioActivities] = useState<CardioActivity[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
 
@@ -34,6 +37,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     getWorkoutDetail(id).then((detail) => {
       setWorkout(detail.workout ?? null);
       setGroups(detail.groups);
+      setCardioActivities(detail.cardioActivities);
     });
     getWorkoutCategories(id).then(setCategories);
   }
@@ -233,6 +237,30 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         >
           <span className="text-4xl leading-none">+</span>
         </button>
+      )}
+
+      {editing && (
+        <AddCardioForm
+          workoutId={id}
+          onAdded={(activity) => setCardioActivities((prev) => [...prev, activity])}
+        />
+      )}
+
+      {cardioActivities.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-semibold text-muted">Cardio</p>
+          {cardioActivities.map((activity) => (
+            <CardioActivityCard
+              key={activity.id}
+              activity={activity}
+              showControls={editing}
+              onUpdated={(updated) =>
+                setCardioActivities((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
+              }
+              onDeleted={(deletedId) => setCardioActivities((prev) => prev.filter((a) => a.id !== deletedId))}
+            />
+          ))}
+        </div>
       )}
 
       <div className="flex flex-col gap-6">

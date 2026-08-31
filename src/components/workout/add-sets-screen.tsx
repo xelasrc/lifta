@@ -13,10 +13,12 @@ import {
   updateWorkoutDetails,
 } from "@/lib/db/workouts";
 import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
-import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
+import type { CardioActivity, Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
 import { CheckIcon } from "@/components/icons/check-icon";
+import { CardioActivityCard } from "@/components/workout/cardio-activity-card";
+import { AddCardioForm } from "@/components/workout/add-cardio-form";
 
 type Group = { exercise: Exercise | undefined; sets: WorkoutSet[] };
 
@@ -24,6 +26,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const router = useRouter();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [groups, setGroups] = useState<Group[] | null>(null);
+  const [cardioActivities, setCardioActivities] = useState<CardioActivity[] | null>(null);
   const [ending, setEnding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [splitDayDraft, setSplitDayDraft] = useState("");
@@ -31,7 +34,10 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
   useEffect(() => {
     getWorkoutById(workoutId).then((w) => setWorkout(w ?? null));
-    getWorkoutDetail(workoutId).then((detail) => setGroups(detail.groups));
+    getWorkoutDetail(workoutId).then((detail) => {
+      setGroups(detail.groups);
+      setCardioActivities(detail.cardioActivities);
+    });
   }, [workoutId]);
 
   async function handleEndWorkout() {
@@ -137,6 +143,11 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
         <span className="text-4xl leading-none">+</span>
       </button>
 
+      <AddCardioForm
+        workoutId={workoutId}
+        onAdded={(activity) => setCardioActivities((prev) => [...(prev ?? []), activity])}
+      />
+
       <div className="flex flex-col gap-6">
         <p className="text-sm font-semibold text-muted">Sets</p>
 
@@ -205,6 +216,28 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
               ))}
             </div>
           </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <p className="text-sm font-semibold text-muted">Cardio</p>
+
+        {cardioActivities === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
+
+        {cardioActivities?.length === 0 && <p className="text-sm text-muted">No cardio logged yet.</p>}
+
+        {cardioActivities?.map((activity) => (
+          <CardioActivityCard
+            key={activity.id}
+            activity={activity}
+            showControls
+            onUpdated={(updated) =>
+              setCardioActivities((prev) => prev?.map((a) => (a.id === updated.id ? updated : a)) ?? null)
+            }
+            onDeleted={(deletedId) =>
+              setCardioActivities((prev) => prev?.filter((a) => a.id !== deletedId) ?? null)
+            }
+          />
         ))}
       </div>
 
