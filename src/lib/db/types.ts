@@ -23,6 +23,9 @@ export interface WorkoutSet {
   reps: number;
   weightKg: number | null;
   order: number;
+  type: "normal" | "drop";
+  parentSetId: string | null;
+  partialReps: number | null;
   createdAt: string;
   updatedAt: string;
 }

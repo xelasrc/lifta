@@ -35,6 +35,9 @@ export function mapWorkoutSet(row: WorkoutSetRow): WorkoutSet {
     reps: row.reps,
     weightKg: row.weight_kg,
     order: row.position,
+    type: row.type,
+    parentSetId: row.parent_set_id,
+    partialReps: row.partial_reps,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

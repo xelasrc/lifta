@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
 import { deleteWorkout, deriveWorkoutTitle, updateWorkoutDetails } from "@/lib/db/workouts";
 import { deleteSet, updateSet } from "@/lib/db/sets";
+import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
 import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -28,6 +29,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
   const [repsDraft, setRepsDraft] = useState("");
   const [weightDraft, setWeightDraft] = useState("");
+  const [partialRepsDraft, setPartialRepsDraft] = useState("");
 
   function refresh() {
     getWorkoutDetail(id).then((detail) => {
@@ -72,20 +74,105 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     setEditingSetId(set.id);
     setRepsDraft(String(set.reps));
     setWeightDraft(String(set.weightKg ?? 0));
+    setPartialRepsDraft(String(set.partialReps ?? 0));
   }
 
   async function commitEditSet(setId: string) {
     const reps = Math.max(0, Math.round(Number(repsDraft)) || 0);
     const weightKg = Math.max(0, Number(weightDraft)) || 0;
+    const partialReps = Math.max(0, Math.round(Number(partialRepsDraft)) || 0) || null;
     setEditingSetId(null);
-    await updateSet(setId, { reps, weightKg });
+    await updateSet(setId, { reps, weightKg, partialReps });
     refresh();
   }
 
-  async function handleDeleteSet(setId: string) {
-    if (!window.confirm("Delete this set?")) return;
+  async function handleDeleteSet(setId: string, childCount: number) {
+    const message =
+      childCount > 0
+        ? `Delete this set and its ${childCount} drop set${childCount === 1 ? "" : "s"}?`
+        : "Delete this set?";
+    if (!window.confirm(message)) return;
     await deleteSet(setId);
     refresh();
+  }
+
+  function renderSetRow(set: WorkoutSet, label: string | null, groupSets: WorkoutSet[]) {
+    const isEditing = editingSetId === set.id;
+    const dropBadge = (
+      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">Drop</span>
+    );
+
+    if (isEditing) {
+      return (
+        <div key={set.id} className={`flex items-center justify-between gap-2 py-1 ${label ? "" : "pl-4"}`}>
+          <p className="font-semibold text-white">{label ?? dropBadge}</p>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={repsDraft}
+              onChange={(event) => setRepsDraft(event.target.value)}
+              autoFocus
+              className="w-12 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
+            />
+            <span className="text-sm text-muted">x</span>
+            <input
+              type="number"
+              value={weightDraft}
+              onChange={(event) => setWeightDraft(event.target.value)}
+              className="w-16 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
+            />
+            <span className="text-sm text-muted">kg</span>
+            <span className="text-sm text-muted">+</span>
+            <input
+              type="number"
+              value={partialRepsDraft}
+              onChange={(event) => setPartialRepsDraft(event.target.value)}
+              className="w-10 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => commitEditSet(set.id)}
+              aria-label={`Save ${label ?? "drop set"}`}
+              className="text-accent"
+            >
+              <CheckIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div key={set.id} className={`flex items-center justify-between py-1 ${label ? "" : "pl-4"}`}>
+        <p className="font-semibold text-white">{label ?? dropBadge}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-muted">
+            {set.reps} x {set.weightKg ?? 0}kg
+            {set.partialReps ? ` +${set.partialReps} partial` : ""}
+          </p>
+          {editing && (
+            <>
+              <button
+                type="button"
+                onClick={() => startEditingSet(set)}
+                aria-label={`Edit ${label ?? "drop set"}`}
+                className="text-muted hover:text-white"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteSet(set.id, countDescendants(groupSets, set.id))}
+                aria-label={`Delete ${label ?? "drop set"}`}
+                className="text-muted hover:text-accent"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (!workout) {
@@ -172,67 +259,12 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
               <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
             )}
             <div className="divide-y divide-white/10">
-              {group.sets.map((set, i) =>
-                editingSetId === set.id ? (
-                  <div key={set.id} className="flex items-center justify-between gap-2 py-3">
-                    <p className="font-semibold text-white">Set {i + 1}</p>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={repsDraft}
-                        onChange={(event) => setRepsDraft(event.target.value)}
-                        autoFocus
-                        className="w-12 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
-                      />
-                      <span className="text-sm text-muted">x</span>
-                      <input
-                        type="number"
-                        value={weightDraft}
-                        onChange={(event) => setWeightDraft(event.target.value)}
-                        className="w-16 rounded-lg border border-white/20 bg-background px-2 py-1 text-right text-sm text-white outline-none"
-                      />
-                      <span className="text-sm text-muted">kg</span>
-                      <button
-                        type="button"
-                        onClick={() => commitEditSet(set.id)}
-                        aria-label={`Save set ${i + 1}`}
-                        className="text-accent"
-                      >
-                        <CheckIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={set.id} className="flex items-center justify-between py-3">
-                    <p className="font-semibold text-white">Set {i + 1}</p>
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm text-muted">
-                        {set.reps} x {set.weightKg ?? 0}kg
-                      </p>
-                      {editing && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => startEditingSet(set)}
-                            aria-label={`Edit set ${i + 1}`}
-                            className="text-muted hover:text-white"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteSet(set.id)}
-                            aria-label={`Delete set ${i + 1}`}
-                            className="text-muted hover:text-accent"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ),
-              )}
+              {groupIntoChains(group.sets).map((chain, i) => (
+                <div key={chain.parent.id} className="flex flex-col gap-1 py-3">
+                  {renderSetRow(chain.parent, `Set ${i + 1}`, group.sets)}
+                  {chain.drops.map((drop) => renderSetRow(drop, null, group.sets))}
+                </div>
+              ))}
             </div>
           </div>
         ))}

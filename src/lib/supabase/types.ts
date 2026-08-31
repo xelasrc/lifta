@@ -54,6 +54,9 @@ export interface Database {
           reps: number;
           weight_kg: number | null;
           position: number;
+          type: "normal" | "drop";
+          parent_set_id: string | null;
+          partial_reps: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -65,6 +68,9 @@ export interface Database {
           reps: number;
           weight_kg?: number | null;
           position: number;
+          type?: "normal" | "drop";
+          parent_set_id?: string | null;
+          partial_reps?: number | null;
           created_at?: string;
           updated_at?: string;
         };

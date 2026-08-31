@@ -12,6 +12,7 @@ import {
   getWorkoutById,
   updateWorkoutDetails,
 } from "@/lib/db/workouts";
+import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
 import type { Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -40,8 +41,12 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     router.push("/");
   }
 
-  async function handleDelete(setId: string) {
-    if (!window.confirm("Delete this set?")) return;
+  async function handleDelete(setId: string, childCount: number) {
+    const message =
+      childCount > 0
+        ? `Delete this set and its ${childCount} drop set${childCount === 1 ? "" : "s"}?`
+        : "Delete this set?";
+    if (!window.confirm(message)) return;
     await deleteSet(setId);
     setGroups((await getWorkoutDetail(workoutId)).groups);
   }
@@ -152,22 +157,50 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
               <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
             )}
             <div className="divide-y divide-white/10">
-              {group.sets.map((set, i) => (
-                <div key={set.id} className="flex items-center justify-between py-3">
-                  <p className="font-semibold text-white">Set {i + 1}</p>
-                  <div className="flex items-center gap-3">
-                    <p className="text-sm text-muted">
-                      {set.reps} x {set.weightKg ?? 0}kg
+              {groupIntoChains(group.sets).map((chain, i) => (
+                <div key={chain.parent.id} className="flex flex-col gap-1 py-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-white">
+                      Set {i + 1}
+                      {chain.parent.partialReps ? ` (+${chain.parent.partialReps} partial)` : ""}
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(set.id)}
-                      aria-label={`Delete ${group.exercise?.name ?? "exercise"} set ${i + 1}`}
-                      className="text-muted hover:text-accent"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm text-muted">
+                        {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(chain.parent.id, countDescendants(group.sets, chain.parent.id))}
+                        aria-label={`Delete ${group.exercise?.name ?? "exercise"} set ${i + 1}`}
+                        className="text-muted hover:text-accent"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
+                  {chain.drops.map((drop) => (
+                    <div key={drop.id} className="flex items-center justify-between pl-4">
+                      <p className="flex items-center gap-2 text-sm text-muted">
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
+                          Drop
+                        </span>
+                        {drop.partialReps ? `(+${drop.partialReps} partial)` : ""}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm text-muted">
+                          {drop.reps} x {drop.weightKg ?? 0}kg
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(drop.id, countDescendants(group.sets, drop.id))}
+                          aria-label={`Delete ${group.exercise?.name ?? "exercise"} drop set`}
+                          className="text-muted hover:text-accent"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>

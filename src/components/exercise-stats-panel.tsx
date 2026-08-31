@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { listSetsForExercise } from "@/lib/db/history";
 import { getWorkoutsByIds } from "@/lib/db/workouts";
+import { groupIntoChains } from "@/lib/db/set-chains";
 import type { Workout, WorkoutSet } from "@/lib/db/types";
 
 function volumeOf(set: WorkoutSet): number {
@@ -71,7 +72,8 @@ export function ExerciseStatsPanel({
 
   // A set logged with 0 reps means the lift was attempted and failed, so it
   // shouldn't count toward any personal best no matter how heavy the weight was.
-  const validSets = sets.filter((s) => s.reps > 0);
+  // Drop-set continuations are excluded too — a fatigued down-set isn't a fair PR comparison.
+  const validSets = sets.filter((s) => s.reps > 0 && s.type === "normal");
   const bestVolume = bestBy(validSets, volumeOf);
   // A real 1-rep max, not an estimate from higher-rep sets — only counts if
   // the user has actually logged a single-rep set for this exercise.
@@ -100,10 +102,22 @@ export function ExerciseStatsPanel({
               <p className="text-sm text-muted">{new Date(group.sets[0].createdAt).toLocaleDateString()}</p>
             </div>
             <div className="flex flex-col gap-1">
-              {group.sets.map((set, i) => (
-                <p key={set.id} className="text-sm text-muted">
-                  Set {i + 1}: {set.reps} x {set.weightKg ?? 0}kg
-                </p>
+              {groupIntoChains(group.sets).map((chain, i) => (
+                <div key={chain.parent.id} className="flex flex-col gap-1">
+                  <p className="text-sm text-muted">
+                    Set {i + 1}: {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
+                    {chain.parent.partialReps ? ` +${chain.parent.partialReps} partial` : ""}
+                  </p>
+                  {chain.drops.map((drop) => (
+                    <p key={drop.id} className="flex items-center gap-2 pl-4 text-sm text-muted">
+                      <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
+                        Drop
+                      </span>
+                      {drop.reps} x {drop.weightKg ?? 0}kg
+                      {drop.partialReps ? ` +${drop.partialReps} partial` : ""}
+                    </p>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
