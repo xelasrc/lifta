@@ -3,11 +3,13 @@ const STORAGE_KEY = "lifta:settings";
 export type Settings = {
   defaultWeightKg: number;
   defaultReps: number;
+  partialRepsEnabled: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
   defaultWeightKg: 20,
   defaultReps: 8,
+  partialRepsEnabled: true,
 };
 
 export function getSettings(): Settings {

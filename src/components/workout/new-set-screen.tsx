@@ -10,7 +10,7 @@ import { NumberPicker } from "@/components/workout/number-picker";
 import { ExerciseStatsPanel } from "@/components/exercise-stats-panel";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { Stepper } from "@/components/stepper";
-import { getSettings } from "@/lib/settings";
+import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 
 function collectDescendantIds(sets: WorkoutSet[], rootId: string): Set<string> {
   const ids = new Set<string>([rootId]);
@@ -33,14 +33,27 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Exercise[]>([]);
   const [selected, setSelected] = useState<Exercise | null>(null);
-  const [weight, setWeight] = useState(() => getSettings().defaultWeightKg);
-  const [reps, setReps] = useState(() => getSettings().defaultReps);
+  const [weight, setWeight] = useState(DEFAULT_SETTINGS.defaultWeightKg);
+  const [reps, setReps] = useState(DEFAULT_SETTINGS.defaultReps);
   const [saving, setSaving] = useState(false);
   const [loggedSets, setLoggedSets] = useState<WorkoutSet[]>([]);
   const [justAdded, setJustAdded] = useState(false);
   const [pendingDropParentId, setPendingDropParentId] = useState<string | null>(null);
   const [showPartials, setShowPartials] = useState(false);
   const [partialReps, setPartialReps] = useState(0);
+  const [partialRepsEnabled, setPartialRepsEnabled] = useState(DEFAULT_SETTINGS.partialRepsEnabled);
+
+  useEffect(() => {
+    // localStorage isn't available during SSR, so the real settings must be
+    // read here (post-mount) rather than in a lazy useState initializer --
+    // otherwise the server-rendered defaults could mismatch the client's
+    // actual stored values and trigger a hydration error.
+    const settings = getSettings();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage, not derivable at render time
+    setWeight(settings.defaultWeightKg);
+    setReps(settings.defaultReps);
+    setPartialRepsEnabled(settings.partialRepsEnabled);
+  }, []);
 
   useEffect(() => {
     if (selected) return;
@@ -231,32 +244,33 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
             </div>
           </div>
 
-          {showPartials ? (
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
-                <Stepper label="Partial reps" value={partialReps} onChange={setPartialReps} min={0} max={20} step={1} />
+          {partialRepsEnabled &&
+            (showPartials ? (
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Stepper label="Partial reps" value={partialReps} onChange={setPartialReps} min={0} max={20} step={1} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPartials(false);
+                    setPartialReps(0);
+                  }}
+                  aria-label="Remove partial reps"
+                  className="text-lg text-muted hover:text-white"
+                >
+                  ×
+                </button>
               </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => {
-                  setShowPartials(false);
-                  setPartialReps(0);
-                }}
-                aria-label="Remove partial reps"
-                className="text-lg text-muted hover:text-white"
+                onClick={() => setShowPartials(true)}
+                className="self-start text-sm font-semibold text-accent"
               >
-                ×
+                + Add partial reps
               </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowPartials(true)}
-              className="self-start text-sm font-semibold text-accent"
-            >
-              + Add partial reps
-            </button>
-          )}
+            ))}
 
           <button
             type="button"
