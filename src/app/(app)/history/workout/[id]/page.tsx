@@ -263,30 +263,33 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         </div>
       )}
 
-      <div className="flex flex-col gap-6">
-        {groups.map((group) => (
-          <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
-            {group.exercise ? (
-              <Link
-                href={`/history/workout/${id}/exercise/${group.exercise.id}`}
-                className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
-              >
-                {group.exercise.name} <span className="text-accent">&rsaquo;</span>
-              </Link>
-            ) : (
-              <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
-            )}
-            <div className="divide-y divide-white/10">
-              {groupIntoChains(group.sets).map((chain, i) => (
-                <div key={chain.parent.id} className="flex flex-col gap-1 py-3">
-                  {renderSetRow(chain.parent, `Set ${i + 1}`, group.sets)}
-                  {chain.drops.map((drop) => renderSetRow(drop, null, group.sets))}
-                </div>
-              ))}
+      {groups.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-semibold text-muted">Sets</p>
+          {groups.map((group) => (
+            <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
+              {group.exercise ? (
+                <Link
+                  href={`/history/workout/${id}/exercise/${group.exercise.id}`}
+                  className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
+                >
+                  {group.exercise.name} <span className="text-accent">&rsaquo;</span>
+                </Link>
+              ) : (
+                <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
+              )}
+              <div className="divide-y divide-white/10">
+                {groupIntoChains(group.sets).map((chain, i) => (
+                  <div key={chain.parent.id} className="flex flex-col gap-1 py-3">
+                    {renderSetRow(chain.parent, `Set ${i + 1}`, group.sets)}
+                    {chain.drops.map((drop) => renderSetRow(drop, null, group.sets))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
