@@ -9,7 +9,7 @@ export type Settings = {
 export const DEFAULT_SETTINGS: Settings = {
   defaultWeightKg: 20,
   defaultReps: 8,
-  partialRepsEnabled: true,
+  partialRepsEnabled: false,
 };
 
 export function getSettings(): Settings {
