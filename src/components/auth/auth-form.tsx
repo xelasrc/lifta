@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { EyeIcon } from "@/components/icons/eye-icon";
+import { EyeOffIcon } from "@/components/icons/eye-off-icon";
 
 type Mode = "sign-in" | "sign-up";
 
@@ -11,6 +13,8 @@ export function AuthForm() {
   const [mode, setMode] = useState<Mode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkEmail, setCheckEmail] = useState(false);
@@ -19,6 +23,12 @@ export function AuthForm() {
     event.preventDefault();
     setError(null);
     setLoading(true);
+
+    if (mode === "sign-up" && password !== confirmPassword) {
+      setLoading(false);
+      setError("Passwords don't match");
+      return;
+    }
 
     const supabase = createClient();
 
@@ -106,16 +116,39 @@ export function AuthForm() {
           onChange={(event) => setEmail(event.target.value)}
           className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
         />
-        <input
-          type="password"
-          required
-          autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-          minLength={6}
-          placeholder="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            required
+            autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
+            minLength={6}
+            placeholder="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="w-full rounded-2xl bg-surface px-5 py-4 pr-12 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white"
+          >
+            {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+          </button>
+        </div>
+
+        {mode === "sign-up" && (
+          <input
+            type={showPassword ? "text" : "password"}
+            required
+            autoComplete="new-password"
+            minLength={6}
+            placeholder="confirm password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+          />
+        )}
 
         {error && <p className="text-sm text-accent">{error}</p>}
 
