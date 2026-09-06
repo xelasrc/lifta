@@ -126,7 +126,7 @@ export function TodaysWorkoutCard() {
           )}
         </div>
       ) : (
-        <div className="rounded-2xl bg-surface p-5">
+        <div className="min-h-30 rounded-2xl bg-surface p-5">
           <p className="text-sm font-semibold text-muted">No workout yet today</p>
         </div>
       )}
@@ -135,7 +135,7 @@ export function TodaysWorkoutCard() {
           type="button"
           onClick={handleStart}
           disabled={starting}
-          className="rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
+          className="flex h-18 items-center justify-center rounded-full bg-accent font-bold text-white disabled:opacity-60"
         >
           Continue
         </button>
