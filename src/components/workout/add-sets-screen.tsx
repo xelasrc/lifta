@@ -159,7 +159,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
           <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
             {group.exercise ? (
               <Link
-                href={`/history/workout/${workoutId}/exercise/${group.exercise.id}`}
+                href={`/workout/${workoutId}/exercise/${group.exercise.id}`}
                 className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
               >
                 {group.exercise.name} <span className="text-accent">&rsaquo;</span>

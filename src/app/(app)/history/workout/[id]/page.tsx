@@ -35,6 +35,13 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
   function refresh() {
     getWorkoutDetail(id).then((detail) => {
+      // A workout without completedAt is still in progress -- send the user
+      // to the live logging screen instead of showing it as history (this is
+      // the mirror of /workout/[id]'s own redirect for completed workouts).
+      if (detail.workout && !detail.workout.completedAt) {
+        router.replace(`/workout/${id}`);
+        return;
+      }
       setWorkout(detail.workout ?? null);
       setGroups(detail.groups);
       setCardioActivities(detail.cardioActivities);
@@ -42,7 +49,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     getWorkoutCategories(id).then(setCategories);
   }
 
-  useEffect(refresh, [id]);
+  useEffect(refresh, [id, router]);
 
   async function handleDelete() {
     if (!window.confirm("Delete this workout? This can't be undone.")) return;
