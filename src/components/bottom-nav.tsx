@@ -24,10 +24,10 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
-      <div className="relative mx-auto flex max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
+      <div className="relative mx-auto flex h-16.25 max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
         <div
           aria-hidden
-          className="absolute inset-y-0 left-0 rounded-xl bg-accent transition-transform duration-300 ease-out"
+          className="absolute inset-y-1.5 left-0 rounded-full bg-accent transition-transform duration-300 ease-out"
           style={{
             width: `${100 / tabs.length}%`,
             transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
@@ -41,9 +41,9 @@ export function BottomNav() {
               href={href}
               aria-label={label}
               aria-current={active ? "page" : undefined}
-              className="relative z-10 flex flex-1 items-center justify-center py-4.5 text-white"
+              className="relative z-10 flex flex-1 items-center justify-center py-3 text-white"
             >
-              <Icon className="h-10.5 w-10.5" />
+              <Icon className="h-8 w-8" />
             </Link>
           );
         })}
