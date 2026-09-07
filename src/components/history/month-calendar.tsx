@@ -30,7 +30,7 @@ export function MonthCalendar({
             disabled={!hasWorkout}
             className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full border-2 bg-black text-sm font-bold ${
               activity?.hasStrength ? "border-accent text-accent" : "border-white/50 text-white"
-            } ${activity?.hasCardio ? "ring-2 ring-offset-2 ring-offset-black ring-sky-400" : ""}`}
+            } ${activity?.hasCardio ? "ring-2 ring-offset-2 ring-offset-black ring-white" : ""}`}
           >
             {day}
           </button>
