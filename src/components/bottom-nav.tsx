@@ -25,14 +25,16 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
       <div className="relative mx-auto flex h-16.25 max-w-md items-center overflow-hidden rounded-full bg-[#191919]">
-        <div
-          aria-hidden
-          className="absolute inset-y-1.5 left-0 rounded-full bg-accent transition-transform duration-300 ease-out"
-          style={{
-            width: `${100 / tabs.length}%`,
-            transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
-          }}
-        />
+        <div className="absolute inset-1.5">
+          <div
+            aria-hidden
+            className="absolute inset-y-0 left-0 h-full rounded-full bg-accent transition-transform duration-300 ease-out"
+            style={{
+              width: `${100 / tabs.length}%`,
+              transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
+            }}
+          />
+        </div>
         {tabs.map(({ href, label, Icon }, i) => {
           const active = i === activeIndex;
           return (
