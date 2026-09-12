@@ -20,6 +20,9 @@ async function listCompletedWorkouts(): Promise<Workout[]> {
   return (data ?? []).map(mapWorkout);
 }
 
+// Ascending (oldest first, current month last) -- callers render this as a
+// vertical timeline and scroll to the last entry, so scrolling up reveals
+// earlier months in the same order a calendar app would show them.
 export async function listWorkoutsByMonth(): Promise<Map<string, Workout[]>> {
   const completed = await listCompletedWorkouts();
 
@@ -31,7 +34,7 @@ export async function listWorkoutsByMonth(): Promise<Map<string, Workout[]>> {
     map.set(key, list);
   }
 
-  return new Map([...map.entries()].sort((a, b) => b[0].localeCompare(a[0])));
+  return new Map([...map.entries()].sort((a, b) => a[0].localeCompare(b[0])));
 }
 
 export async function listWorkoutsInMonth(monthKey: string): Promise<Workout[]> {
