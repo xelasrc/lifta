@@ -130,7 +130,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         <button
           type="button"
           onClick={handleDone}
-          className="rounded-full bg-accent px-5 py-2 text-sm font-bold text-white"
+          className="rounded-full bg-accent-gradient px-5 py-2 text-sm font-bold text-white"
         >
           Done
         </button>
@@ -249,7 +249,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
             type="button"
             onClick={handleAddSet}
             disabled={saving}
-            className={`rounded-2xl bg-accent py-4 font-bold text-white transition-transform disabled:opacity-60 ${
+            className={`rounded-2xl bg-accent-gradient py-4 font-bold text-white transition-transform disabled:opacity-60 ${
               justAdded ? "scale-95" : "scale-100"
             }`}
           >

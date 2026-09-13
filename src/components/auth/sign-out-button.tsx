@@ -17,7 +17,7 @@ export function SignOutButton() {
     <button
       type="button"
       onClick={handleSignOut}
-      className="rounded-full bg-accent px-6 py-3 font-bold text-white"
+      className="rounded-full bg-accent-gradient px-6 py-3 font-bold text-white"
     >
       Sign Out
     </button>

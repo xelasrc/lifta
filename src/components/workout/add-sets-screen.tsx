@@ -245,7 +245,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
         type="button"
         onClick={handleEndWorkout}
         disabled={ending}
-        className="mt-auto mb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
+        className="mt-auto mb-[max(1.5rem,env(safe-area-inset-bottom))] rounded-full bg-accent-gradient py-4 font-bold text-white disabled:opacity-60"
       >
         End Workout
       </button>

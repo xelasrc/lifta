@@ -28,7 +28,7 @@ export function BottomNav() {
         <div className="absolute inset-1.5">
           <div
             aria-hidden
-            className="absolute inset-y-0 left-0 h-full rounded-full bg-accent transition-transform duration-300 ease-out"
+            className="absolute inset-y-0 left-0 h-full rounded-full bg-accent-gradient transition-transform duration-300 ease-out"
             style={{
               width: `${100 / tabs.length}%`,
               transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,

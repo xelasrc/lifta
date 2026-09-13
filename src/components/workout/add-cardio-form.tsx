@@ -107,7 +107,7 @@ export function AddCardioForm({
           type="button"
           onClick={handleSave}
           disabled={saving || !activityType.trim()}
-          className="flex-1 rounded-full bg-accent py-3 text-sm font-semibold text-white disabled:opacity-60"
+          className="flex-1 rounded-full bg-accent-gradient py-3 text-sm font-semibold text-white disabled:opacity-60"
         >
           Save
         </button>

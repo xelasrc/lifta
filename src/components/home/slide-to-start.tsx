@@ -87,7 +87,7 @@ export function SlideToStart({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
-        className={`absolute top-1 bottom-1 left-1 flex touch-none items-center justify-center gap-1 rounded-full bg-accent px-4 font-bold text-white outline-none select-none focus-visible:ring-2 focus-visible:ring-white [-webkit-tap-highlight-color:transparent] ${
+        className={`absolute top-1 bottom-1 left-1 flex touch-none items-center justify-center gap-1 rounded-full bg-accent-gradient px-4 font-bold text-white outline-none select-none focus-visible:ring-2 focus-visible:ring-white [-webkit-tap-highlight-color:transparent] ${
           dragging ? "" : "transition-transform duration-200 ease-out"
         }`}
         style={{ width: HANDLE_WIDTH, transform: `translateX(${dragX}px)` }}

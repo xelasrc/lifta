@@ -135,7 +135,7 @@ export function TodaysWorkoutCard() {
           type="button"
           onClick={handleStart}
           disabled={starting}
-          className="flex h-18 items-center justify-center rounded-full bg-accent font-bold text-white disabled:opacity-60"
+          className="flex h-18 items-center justify-center rounded-full bg-accent-gradient font-bold text-white disabled:opacity-60"
         >
           Continue
         </button>

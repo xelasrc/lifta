@@ -23,3 +23,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Same accent orange, with a white inner-shadow highlight tucked into the
+   top-left corner (Figma: inset, X 3 / Y 3 / Blur 3 / Spread 0, white 25%),
+   for the app's larger solid-accent buttons and pills (see bg-accent for
+   flat fills on small/decorative elements, where this wouldn't read well). */
+@utility bg-accent-gradient {
+  background-color: var(--accent);
+  box-shadow: inset 3px 3px 3px 0 rgba(255, 255, 255, 0.25);
+}

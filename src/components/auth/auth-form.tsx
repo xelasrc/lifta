@@ -75,7 +75,7 @@ export function AuthForm() {
         <button
           type="button"
           onClick={() => switchMode("sign-in")}
-          className="mt-5 w-full rounded-full bg-accent py-3 font-semibold text-white"
+          className="mt-5 w-full rounded-full bg-accent-gradient py-3 font-semibold text-white"
         >
           Back to sign in
         </button>
@@ -155,7 +155,7 @@ export function AuthForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 rounded-full bg-accent py-4 font-bold text-white disabled:opacity-60"
+          className="mt-2 rounded-full bg-accent-gradient py-4 font-bold text-white disabled:opacity-60"
         >
           {loading ? "..." : mode === "sign-in" ? "Sign In" : "Create Account"}
         </button>
