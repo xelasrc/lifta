@@ -35,7 +35,7 @@ export default function FriendWorkoutsPage(props: PageProps<"/social/friend/[use
         {workouts?.map((workout) => (
           <Link
             key={workout.id}
-            href={`/history/workout/${workout.id}`}
+            href={`/social/friend/${userId}/workout/${workout.id}`}
             className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
           >
             <div>

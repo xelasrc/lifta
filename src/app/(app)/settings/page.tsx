@@ -7,6 +7,7 @@ import { SignOutButton } from "@/components/auth/sign-out-button";
 import { DEFAULT_SETTINGS, getSettings, updateSettings } from "@/lib/settings";
 import { PencilIcon } from "@/components/icons/pencil-icon";
 import { CheckIcon } from "@/components/icons/check-icon";
+import { XIcon } from "@/components/icons/x-icon";
 import { Stepper } from "@/components/stepper";
 import { ToggleSwitch } from "@/components/toggle-switch";
 
@@ -96,6 +97,13 @@ export default function SettingsPage() {
     setNewPassword("");
     setConfirmPassword("");
     setPasswordMessage("Password updated.");
+  }
+
+  function handleCancelPassword() {
+    setEditingPassword(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordMessage(null);
   }
 
   function handleWeightChange(value: number) {
@@ -220,15 +228,28 @@ export default function SettingsPage() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted">Password</p>
-            <button
-              type="button"
-              onClick={editingPassword ? handleSavePassword : startEditingPassword}
-              disabled={passwordSaving}
-              aria-label={editingPassword ? "Save password" : "Reset password"}
-              className={editingPassword ? "text-accent disabled:opacity-60" : "text-muted hover:text-white"}
-            >
-              {editingPassword ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
-            </button>
+            <div className="flex items-center gap-3">
+              {editingPassword && (
+                <button
+                  type="button"
+                  onClick={handleCancelPassword}
+                  disabled={passwordSaving}
+                  aria-label="Cancel changing password"
+                  className="text-muted hover:text-white disabled:opacity-60"
+                >
+                  <XIcon className="h-5 w-5" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={editingPassword ? handleSavePassword : startEditingPassword}
+                disabled={passwordSaving}
+                aria-label={editingPassword ? "Save password" : "Reset password"}
+                className={editingPassword ? "text-accent disabled:opacity-60" : "text-muted hover:text-white"}
+              >
+                {editingPassword ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
           {editingPassword ? (
             <div className="flex flex-col gap-2">

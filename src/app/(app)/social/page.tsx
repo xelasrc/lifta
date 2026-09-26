@@ -62,6 +62,12 @@ export default function SocialPage() {
     refresh();
   }
 
+  async function handleRemoveFriend(friendshipId: string, name: string) {
+    if (!window.confirm(`Remove ${name} as a friend?`)) return;
+    await removeFriendship(friendshipId);
+    refresh();
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <h1 className="text-2xl font-bold text-white">Social</h1>
@@ -164,14 +170,23 @@ export default function SocialPage() {
           </div>
         )}
         {overview.accepted.map(({ friendship, profile }) => (
-          <Link
+          <div
             key={friendship.id}
-            href={`/social/friend/${profile.id}`}
-            className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+            className="flex items-center justify-between gap-3 rounded-full bg-[#232323] px-5 py-4"
           >
-            <span className="text-white">{profile.displayName ?? profile.email}</span>
-            <span className="text-accent">&rsaquo;</span>
-          </Link>
+            <Link href={`/social/friend/${profile.id}`} className="flex flex-1 items-center justify-between">
+              <span className="text-white">{profile.displayName ?? profile.email}</span>
+              <span className="text-accent">&rsaquo;</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => handleRemoveFriend(friendship.id, profile.displayName ?? profile.email)}
+              aria-label={`Remove ${profile.displayName ?? profile.email}`}
+              className="text-muted hover:text-accent"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
         ))}
       </div>
     </div>
