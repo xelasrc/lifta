@@ -11,7 +11,7 @@ const tabs = [
   { href: "/", label: "Workout", Icon: BarbellIcon },
   { href: "/history", label: "History", Icon: ClockIcon },
   { href: "/stats", label: "Stats", Icon: ChartIcon },
-  { href: "/profile", label: "Profile", Icon: PersonIcon },
+  { href: "/social", label: "Social", Icon: PersonIcon },
 ] as const;
 
 export function BottomNav() {
@@ -20,7 +20,7 @@ export function BottomNav() {
     href === "/" ? pathname === "/" : pathname.startsWith(href),
   );
 
-  if (pathname.startsWith("/workout/")) return null;
+  if (pathname.startsWith("/workout/") || pathname === "/settings") return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">

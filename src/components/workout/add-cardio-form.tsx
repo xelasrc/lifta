@@ -49,9 +49,9 @@ export function AddCardioForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-2xl border border-dashed border-white/20 py-3 text-sm font-semibold text-accent"
+        className="rounded-full border-2 border-white/80 bg-[#151515] py-4 text-sm font-semibold text-white"
       >
-        + Add Cardio
+        + Add cardio
       </button>
     );
   }

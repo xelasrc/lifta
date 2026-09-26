@@ -3,6 +3,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
 import { deleteWorkout, deriveWorkoutTitle, updateWorkoutDetails } from "@/lib/db/workouts";
 import { deleteSet, updateSet } from "@/lib/db/sets";
@@ -24,6 +25,11 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   const [cardioActivities, setCardioActivities] = useState<CardioActivity[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  // A friend's workout is readable via the social RLS policies now, so this
+  // page must hide every write affordance (edit/delete/add) unless the
+  // signed-in user actually owns it -- attempting one would just fail RLS.
+  const isOwner = currentUserId !== null && workout?.userId === currentUserId;
 
   const [editing, setEditing] = useState(false);
   const [splitDayDraft, setSplitDayDraft] = useState("");
@@ -50,6 +56,12 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   }
 
   useEffect(refresh, [id, router]);
+
+  useEffect(() => {
+    createClient()
+      .auth.getUser()
+      .then(({ data: { user } }) => setCurrentUserId(user?.id ?? null));
+  }, []);
 
   async function handleDelete() {
     if (!window.confirm("Delete this workout? This can't be undone.")) return;
@@ -151,7 +163,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
             {set.reps} x {set.weightKg ?? 0}kg
             {set.partialReps ? ` +${set.partialReps} partial` : ""}
           </p>
-          {editing && (
+          {isOwner && editing && (
             <>
               <button
                 type="button"
@@ -193,25 +205,27 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
           </Link>
           <h1 className="text-2xl font-bold text-white">History</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
-            aria-label="Delete workout"
-            className="text-muted hover:text-accent disabled:opacity-60"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={editing ? commitEdit : startEditing}
-            aria-label={editing ? "Save workout details" : "Edit workout details"}
-            className={editing ? "text-accent" : "text-muted hover:text-white"}
-          >
-            {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
-          </button>
-        </div>
+        {isOwner && (
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              aria-label="Delete workout"
+              className="text-muted hover:text-accent disabled:opacity-60"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={editing ? commitEdit : startEditing}
+              aria-label={editing ? "Save workout details" : "Edit workout details"}
+              className={editing ? "text-accent" : "text-muted hover:text-white"}
+            >
+              {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl bg-surface p-5">
@@ -235,7 +249,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         {categories.length > 0 && <p className="mt-1 text-sm text-accent">{categories.join(", ")}</p>}
       </div>
 
-      {editing && (
+      {isOwner && editing && (
         <button
           type="button"
           onClick={() => router.push(`/workout/${id}/new-set`)}
@@ -246,7 +260,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         </button>
       )}
 
-      {editing && (
+      {isOwner && editing && (
         <AddCardioForm
           workoutId={id}
           onAdded={(activity) => setCardioActivities((prev) => [...prev, activity])}
@@ -260,7 +274,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
             <CardioActivityCard
               key={activity.id}
               activity={activity}
-              showControls={editing}
+              showControls={isOwner && editing}
               onUpdated={(updated) =>
                 setCardioActivities((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
               }

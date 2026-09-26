@@ -10,9 +10,19 @@ export async function getExercise(id: string): Promise<Exercise | undefined> {
 
 export async function searchExercises(query: string): Promise<Exercise[]> {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const q = query.trim();
 
-  let request = supabase.from("exercises").select("*").order("name", { ascending: true });
+  // RLS also permits reading an accepted friend's custom exercises now, so
+  // this must filter explicitly -- suggestions here should only ever be
+  // global catalog exercises or the caller's own, never a friend's.
+  let request = supabase
+    .from("exercises")
+    .select("*")
+    .or(user ? `user_id.is.null,user_id.eq.${user.id}` : "user_id.is.null")
+    .order("name", { ascending: true });
   if (q) {
     request = request.ilike("name", `%${q}%`);
   }

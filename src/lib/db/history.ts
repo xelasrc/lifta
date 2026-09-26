@@ -12,9 +12,17 @@ function monthKeyOf(dateStr: string): string {
 
 async function listCompletedWorkouts(): Promise<Workout[]> {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
+  // RLS also permits reading an accepted friend's workouts now, so this must
+  // filter to auth.uid() explicitly -- this page only ever shows the
+  // signed-in user's own history.
   const { data } = await supabase
     .from("workouts")
     .select("*")
+    .eq("user_id", user.id)
     .not("completed_at", "is", null)
     .order("started_at", { ascending: false });
   return (data ?? []).map(mapWorkout);
@@ -107,12 +115,20 @@ export async function getWorkoutDetail(workoutId: string): Promise<{
   return { workout, groups, cardioActivities };
 }
 
+// Personal records/history for this exercise -- scoped to the caller's own
+// sets so an accepted friend's sets on the same (global) exercise can't
+// contaminate these numbers.
 export async function listSetsForExercise(exerciseId: string): Promise<WorkoutSet[]> {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in");
   const { data } = await supabase
     .from("workout_sets")
     .select("*")
     .eq("exercise_id", exerciseId)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   return (data ?? []).map(mapWorkoutSet);
 }

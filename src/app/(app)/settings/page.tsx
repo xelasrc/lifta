@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { DEFAULT_SETTINGS, getSettings, updateSettings } from "@/lib/settings";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -9,18 +9,13 @@ import { CheckIcon } from "@/components/icons/check-icon";
 import { Stepper } from "@/components/stepper";
 import { ToggleSwitch } from "@/components/toggle-switch";
 
-export default function ProfilePage() {
-  const [email, setEmail] = useState<string | null>(null);
+export default function SettingsPage() {
   const [defaultWeightKg, setDefaultWeightKg] = useState(DEFAULT_SETTINGS.defaultWeightKg);
   const [defaultReps, setDefaultReps] = useState(DEFAULT_SETTINGS.defaultReps);
   const [partialRepsEnabled, setPartialRepsEnabled] = useState(DEFAULT_SETTINGS.partialRepsEnabled);
   const [editingDefaults, setEditingDefaults] = useState(false);
 
   useEffect(() => {
-    createClient()
-      .auth.getSession()
-      .then(({ data: { session } }) => setEmail(session?.user.email ?? null));
-
     // localStorage isn't available during SSR, so the real settings must be
     // read here (post-mount) rather than in a lazy useState initializer --
     // otherwise the server-rendered defaults mismatch the client's actual
@@ -48,11 +43,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">Profile</h1>
-      <div className="rounded-2xl bg-surface p-5">
-        <p className="text-sm text-muted">Signed in as</p>
-        <p className="font-semibold text-white">{email ?? "…"}</p>
+    <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="flex items-center gap-3">
+        <Link href="/" aria-label="Back to home" className="text-2xl font-bold text-white">
+          &lsaquo;
+        </Link>
+        <h1 className="text-2xl font-bold text-white">Settings</h1>
       </div>
 
       <div className="flex flex-col gap-4 rounded-2xl bg-surface p-5">

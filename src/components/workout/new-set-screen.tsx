@@ -119,42 +119,41 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
     setLoggedSets((prev) => prev.filter((s) => !descendantIds.has(s.id)));
   }
 
-  function handleDone() {
-    router.push(`/workout/${workoutId}`);
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Exercise</h1>
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={handleDone}
-          className="rounded-full bg-accent-gradient px-5 py-2 text-sm font-bold text-white"
+          onClick={() => router.push(`/workout/${workoutId}`)}
+          aria-label="Back"
+          className="text-2xl font-bold text-white"
         >
-          Done
+          &lsaquo;
         </button>
+        <h1 className="text-2xl font-bold text-white">{selected ? selected.name : "Exercise"}</h1>
       </div>
 
       <div className="flex flex-col gap-2">
-        <input
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setSelected(null);
-          }}
-          placeholder="Search or add an exercise..."
-          className="rounded-2xl bg-surface px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
-        />
+        {!selected && (
+          <input
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setSelected(null);
+            }}
+            placeholder="Search..."
+            className="rounded-full bg-[#232323] px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+          />
+        )}
 
         {!selected && (
-          <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-2xl bg-surface p-2 scrollbar-none">
+          <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pb-2 scrollbar-none">
             {suggestions.map((exercise) => (
               <button
                 key={exercise.id}
                 type="button"
                 onClick={() => handleSelect(exercise)}
-                className="flex items-center justify-between rounded-xl px-3 py-3 text-left text-white hover:bg-white/5"
+                className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4 text-left text-white"
               >
                 {exercise.name}
                 <span className="text-accent">&rsaquo;</span>
@@ -164,7 +163,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
               <button
                 type="button"
                 onClick={handleAddCustom}
-                className="rounded-xl px-3 py-3 text-left font-semibold text-accent hover:bg-white/5"
+                className="rounded-full bg-[#232323] px-5 py-4 text-left font-semibold text-accent"
               >
                 + Add &quot;{query}&quot; as new exercise
               </button>
@@ -257,69 +256,43 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
           </button>
 
           {loggedSets.length > 0 && (
-            <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4">
+            <div className="flex flex-col gap-3">
               <p className="text-sm font-semibold text-muted">
                 Logged for {selected.name} ({loggedSets.length})
               </p>
               {groupIntoChains(loggedSets).map((chain, i) => {
                 const lastDrop = chain.drops[chain.drops.length - 1];
+                const parts = [chain.parent, ...chain.drops].map(
+                  (set) =>
+                    `${set.reps} x ${set.weightKg ?? 0}kg${set.partialReps ? ` +${set.partialReps} partial` : ""}`,
+                );
                 return (
-                  <div key={chain.parent.id} className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-white">
-                        Set {i + 1}: {chain.parent.reps} x {chain.parent.weightKg}kg
-                        {chain.parent.partialReps ? ` +${chain.parent.partialReps} partial` : ""}
-                      </p>
-                      <div className="flex items-center gap-3">
-                        {!lastDrop && (
-                          <button
-                            type="button"
-                            onClick={() => handleStartDrop(chain.parent)}
-                            className="text-xs font-semibold text-accent"
-                          >
-                            + Drop Set
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteLoggedSet(chain.parent.id)}
-                          aria-label={`Delete set ${i + 1}`}
-                          className="text-muted hover:text-accent"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                  <div
+                    key={chain.parent.id}
+                    className="flex items-center justify-between gap-3 rounded-full border-2 border-accent px-5 py-3"
+                  >
+                    <div>
+                      <p className="font-semibold text-white">Set {i + 1}</p>
+                      <p className="text-sm text-muted">{parts.join(" + ")}</p>
                     </div>
-                    {chain.drops.map((drop) => (
-                      <div key={drop.id} className="flex items-center justify-between pl-4">
-                        <p className="flex items-center gap-2 text-sm text-muted">
-                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
-                            Drop
-                          </span>
-                          {drop.reps} x {drop.weightKg}kg
-                          {drop.partialReps ? ` +${drop.partialReps} partial` : ""}
-                        </p>
-                        <div className="flex items-center gap-3">
-                          {drop.id === lastDrop.id && (
-                            <button
-                              type="button"
-                              onClick={() => handleStartDrop(drop)}
-                              className="text-xs font-semibold text-accent"
-                            >
-                              + Drop Set
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteLoggedSet(drop.id)}
-                            aria-label="Delete drop set"
-                            className="text-muted hover:text-accent"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLoggedSet(chain.parent.id)}
+                        aria-label={`Delete set ${i + 1}`}
+                        className="text-muted hover:text-accent"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStartDrop(lastDrop ?? chain.parent)}
+                        aria-label={`Add drop set to set ${i + 1}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-lg font-bold text-white"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 );
               })}

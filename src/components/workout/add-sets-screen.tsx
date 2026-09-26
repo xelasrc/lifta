@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { deleteSet } from "@/lib/db/sets";
 import { getWorkoutDetail } from "@/lib/db/history";
 import {
   completeWorkout,
@@ -12,7 +11,7 @@ import {
   getWorkoutById,
   updateWorkoutDetails,
 } from "@/lib/db/workouts";
-import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
+import { groupIntoChains } from "@/lib/db/set-chains";
 import type { CardioActivity, Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -45,16 +44,6 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     setEnding(true);
     await completeWorkout(workoutId);
     router.push("/");
-  }
-
-  async function handleDelete(setId: string, childCount: number) {
-    const message =
-      childCount > 0
-        ? `Delete this set and its ${childCount} drop set${childCount === 1 ? "" : "s"}?`
-        : "Delete this set?";
-    if (!window.confirm(message)) return;
-    await deleteSet(setId);
-    setGroups((await getWorkoutDetail(workoutId)).groups);
   }
 
   async function handleDeleteWorkout() {
@@ -137,7 +126,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
       <button
         type="button"
         onClick={() => router.push(`/workout/${workoutId}/new-set`)}
-        className="flex h-32 items-center justify-center rounded-2xl bg-surface text-accent"
+        className="flex h-44 items-center justify-center rounded-2xl bg-surface text-accent"
         aria-label="Add set"
       >
         <span className="text-4xl leading-none">+</span>
@@ -155,68 +144,45 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
         {groups?.length === 0 && <p className="text-sm text-muted">No sets logged yet.</p>}
 
-        {groups?.map((group) => (
-          <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
-            {group.exercise ? (
-              <Link
-                href={`/workout/${workoutId}/exercise/${group.exercise.id}`}
-                className="flex items-center justify-between border-b border-white/10 pb-3 font-semibold text-white"
-              >
-                {group.exercise.name} <span className="text-accent">&rsaquo;</span>
-              </Link>
-            ) : (
-              <p className="border-b border-white/10 pb-3 font-semibold text-white">Exercise</p>
-            )}
-            <div className="divide-y divide-white/10">
-              {groupIntoChains(group.sets).map((chain, i) => (
-                <div key={chain.parent.id} className="flex flex-col gap-1 py-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-white">
-                      Set {i + 1}
-                      {chain.parent.partialReps ? ` (+${chain.parent.partialReps} partial)` : ""}
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm text-muted">
-                        {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(chain.parent.id, countDescendants(group.sets, chain.parent.id))}
-                        aria-label={`Delete ${group.exercise?.name ?? "exercise"} set ${i + 1}`}
-                        className="text-muted hover:text-accent"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                  {chain.drops.map((drop) => (
-                    <div key={drop.id} className="flex items-center justify-between pl-4">
-                      <p className="flex items-center gap-2 text-sm text-muted">
-                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted">
-                          Drop
+        {groups?.map((group) => {
+          const exerciseHref = group.exercise ? `/workout/${workoutId}/exercise/${group.exercise.id}` : null;
+          return (
+            <div key={group.exercise?.id ?? group.sets[0]?.id} className="flex flex-col gap-3">
+              <p className="font-semibold text-white">{group.exercise?.name ?? "Exercise"}</p>
+              <div className="flex flex-col gap-2">
+                {groupIntoChains(group.sets).map((chain, i) => {
+                  const row = (
+                    <>
+                      <span className="text-sm text-white">set {i + 1}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-white/90">
+                          {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
                         </span>
-                        {drop.partialReps ? `(+${drop.partialReps} partial)` : ""}
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <p className="text-sm text-muted">
-                          {drop.reps} x {drop.weightKg ?? 0}kg
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(drop.id, countDescendants(group.sets, drop.id))}
-                          aria-label={`Delete ${group.exercise?.name ?? "exercise"} drop set`}
-                          className="text-muted hover:text-accent"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
+                        {exerciseHref && <span className="text-accent">&rsaquo;</span>}
+                      </span>
+                    </>
+                  );
+                  return exerciseHref ? (
+                    <Link
+                      key={chain.parent.id}
+                      href={exerciseHref}
+                      className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <div
+                      key={chain.parent.id}
+                      className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+                    >
+                      {row}
                     </div>
-                  ))}
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex flex-col gap-6">

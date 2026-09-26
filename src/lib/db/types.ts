@@ -8,6 +8,7 @@ export interface Exercise {
 
 export interface Workout {
   id: string;
+  userId: string;
   title: string;
   splitDay: string | null;
   startedAt: string;
@@ -28,6 +29,20 @@ export interface WorkoutSet {
   partialReps: number | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Profile {
+  id: string;
+  email: string;
+  displayName: string | null;
+}
+
+export interface Friendship {
+  id: string;
+  requesterId: string;
+  addresseeId: string;
+  status: "pending" | "accepted";
+  createdAt: string;
 }
 
 export interface CardioActivity {
