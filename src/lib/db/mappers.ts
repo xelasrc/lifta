@@ -24,6 +24,7 @@ export function mapWorkout(row: WorkoutRow): Workout {
 export function mapExercise(row: ExerciseRow): Exercise {
   return {
     id: row.id,
+    userId: row.user_id,
     name: row.name,
     category: row.category,
     createdAt: row.created_at,

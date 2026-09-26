@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Greeting } from "@/components/home/greeting";
 import { TodaysWorkoutCard } from "@/components/home/todays-workout-card";
+import { UnfinishedWorkoutsList } from "@/components/home/unfinished-workouts-list";
 import { RecentWorkoutsList } from "@/components/home/recent-workouts-list";
 import { SettingsIcon } from "@/components/icons/settings-icon";
 
@@ -14,6 +15,7 @@ export default function HomePage() {
         <Greeting />
       </div>
       <TodaysWorkoutCard />
+      <UnfinishedWorkoutsList />
       <RecentWorkoutsList />
     </div>
   );

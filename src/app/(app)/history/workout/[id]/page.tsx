@@ -8,6 +8,7 @@ import { getWorkoutDetail, getWorkoutCategories } from "@/lib/db/history";
 import { deleteWorkout, deriveWorkoutTitle, updateWorkoutDetails } from "@/lib/db/workouts";
 import { deleteSet, updateSet } from "@/lib/db/sets";
 import { countDescendants, groupIntoChains } from "@/lib/db/set-chains";
+import { toDateInputValue, withDate } from "@/lib/date";
 import type { CardioActivity, Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -33,6 +34,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
   const [editing, setEditing] = useState(false);
   const [splitDayDraft, setSplitDayDraft] = useState("");
+  const [dateDraft, setDateDraft] = useState("");
   const splitDayInputRef = useRef<HTMLInputElement>(null);
 
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
@@ -73,6 +75,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
   function startEditing() {
     if (!workout) return;
     setSplitDayDraft(workout.splitDay ?? "");
+    setDateDraft(toDateInputValue(workout.startedAt));
     setEditing(true);
     requestAnimationFrame(() => splitDayInputRef.current?.select());
   }
@@ -81,10 +84,12 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     if (!workout) return;
     const splitDay = splitDayDraft.trim() || null;
     const title = deriveWorkoutTitle(splitDay);
-    setWorkout({ ...workout, title, splitDay });
+    const startedAt = dateDraft ? withDate(workout.startedAt, dateDraft) : workout.startedAt;
+    const completedAt = workout.completedAt && dateDraft ? withDate(workout.completedAt, dateDraft) : workout.completedAt;
+    setWorkout({ ...workout, title, splitDay, startedAt, completedAt });
     setEditing(false);
     setEditingSetId(null);
-    await updateWorkoutDetails(id, { title, splitDay });
+    await updateWorkoutDetails(id, { title, splitDay, startedAt, completedAt });
   }
 
   function handleEditKeyDown(event: React.KeyboardEvent) {
@@ -242,9 +247,18 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
           ) : (
             <p className="text-xl font-bold text-white">{workout.title}</p>
           )}
-          <p className="shrink-0 whitespace-nowrap text-sm text-muted">
-            {new Date(workout.startedAt).toLocaleDateString()}
-          </p>
+          {isOwner && editing ? (
+            <input
+              type="date"
+              value={dateDraft}
+              onChange={(event) => setDateDraft(event.target.value)}
+              className="shrink-0 rounded-lg border border-white/20 bg-background px-2 py-1 text-sm text-white outline-none"
+            />
+          ) : (
+            <p className="shrink-0 whitespace-nowrap text-sm text-muted">
+              {new Date(workout.startedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
         {categories.length > 0 && <p className="mt-1 text-sm text-accent">{categories.join(", ")}</p>}
       </div>

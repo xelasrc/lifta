@@ -1,5 +1,6 @@
 export interface Exercise {
   id: string;
+  userId: string | null;
   name: string;
   category: string | null;
   createdAt: string;

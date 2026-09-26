@@ -195,6 +195,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      <Link href="/settings/exercises" className="flex items-center justify-between rounded-2xl bg-surface p-5">
+        <p className="text-sm font-semibold text-white">My Exercises</p>
+        <span className="text-accent">&rsaquo;</span>
+      </Link>
+
       <div className="flex flex-col gap-4 rounded-2xl bg-surface p-5">
         <p className="text-sm font-semibold text-white">Account</p>
 

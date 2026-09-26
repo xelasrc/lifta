@@ -12,6 +12,7 @@ import {
   updateWorkoutDetails,
 } from "@/lib/db/workouts";
 import { groupIntoChains } from "@/lib/db/set-chains";
+import { toDateInputValue, withDate } from "@/lib/date";
 import type { CardioActivity, Exercise, Workout, WorkoutSet } from "@/lib/db/types";
 import { TrashIcon } from "@/components/icons/trash-icon";
 import { PencilIcon } from "@/components/icons/pencil-icon";
@@ -29,6 +30,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   const [ending, setEnding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [splitDayDraft, setSplitDayDraft] = useState("");
+  const [dateDraft, setDateDraft] = useState("");
   const splitDayInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
   function startEditing() {
     if (!workout) return;
     setSplitDayDraft(workout.splitDay ?? "");
+    setDateDraft(toDateInputValue(workout.startedAt));
     setEditing(true);
     requestAnimationFrame(() => splitDayInputRef.current?.select());
   }
@@ -63,9 +66,10 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     if (!workout) return;
     const splitDay = splitDayDraft.trim() || null;
     const title = deriveWorkoutTitle(splitDay);
-    setWorkout({ ...workout, title, splitDay });
+    const startedAt = dateDraft ? withDate(workout.startedAt, dateDraft) : workout.startedAt;
+    setWorkout({ ...workout, title, splitDay, startedAt });
     setEditing(false);
-    await updateWorkoutDetails(workoutId, { title, splitDay });
+    await updateWorkoutDetails(workoutId, { title, splitDay, startedAt });
   }
 
   function handleEditKeyDown(event: React.KeyboardEvent) {
@@ -83,16 +87,27 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
 
           {workout ? (
             editing ? (
-              <input
-                ref={splitDayInputRef}
-                value={splitDayDraft}
-                onChange={(event) => setSplitDayDraft(event.target.value)}
-                onKeyDown={handleEditKeyDown}
-                placeholder="Split day (e.g. Push, Legs)"
-                className="flex-1 border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
-              />
+              <div className="flex flex-1 flex-col gap-2">
+                <input
+                  ref={splitDayInputRef}
+                  value={splitDayDraft}
+                  onChange={(event) => setSplitDayDraft(event.target.value)}
+                  onKeyDown={handleEditKeyDown}
+                  placeholder="Split day (e.g. Push, Legs)"
+                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
+                />
+                <input
+                  type="date"
+                  value={dateDraft}
+                  onChange={(event) => setDateDraft(event.target.value)}
+                  className="w-fit rounded-lg border border-white/20 bg-background px-2 py-1 text-sm text-white outline-none"
+                />
+              </div>
             ) : (
-              <p className="text-2xl font-bold text-white">{workout.title}</p>
+              <div>
+                <p className="text-2xl font-bold text-white">{workout.title}</p>
+                <p className="text-sm text-muted">{new Date(workout.startedAt).toLocaleDateString()}</p>
+              </div>
             )
           ) : (
             <div className="h-8 w-40 animate-pulse rounded bg-surface" />

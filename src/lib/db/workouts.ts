@@ -70,6 +70,27 @@ export async function listTodaysCompletedWorkouts(): Promise<Workout[]> {
   return (data ?? []).map(mapWorkout);
 }
 
+// In-progress workouts started before today -- e.g. abandoned mid-log and
+// never ended. These fall outside every other query (History only shows
+// completed workouts; getTodaysWorkout only looks at today), so without this
+// they're permanently unreachable except by guessing the URL.
+export async function listStaleInProgressWorkouts(): Promise<Workout[]> {
+  const supabase = createClient();
+  const userId = await requireUserId(supabase);
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const { data } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("user_id", userId)
+    .lt("started_at", startOfDay.toISOString())
+    .is("completed_at", null)
+    .order("started_at", { ascending: false });
+
+  return (data ?? []).map(mapWorkout);
+}
+
 export async function createWorkout(title: string): Promise<Workout> {
   const supabase = createClient();
   const {
@@ -117,13 +138,16 @@ export function deriveWorkoutTitle(splitDay: string | null): string {
 
 export async function updateWorkoutDetails(
   id: string,
-  updates: { title: string; splitDay: string | null },
+  updates: { title: string; splitDay: string | null; startedAt?: string; completedAt?: string | null },
 ): Promise<void> {
   const supabase = createClient();
-  const { error } = await supabase
-    .from("workouts")
-    .update({ title: updates.title, split_day: updates.splitDay })
-    .eq("id", id);
+  const payload: { title: string; split_day: string | null; started_at?: string; completed_at?: string | null } = {
+    title: updates.title,
+    split_day: updates.splitDay,
+  };
+  if (updates.startedAt !== undefined) payload.started_at = updates.startedAt;
+  if (updates.completedAt !== undefined) payload.completed_at = updates.completedAt;
+  const { error } = await supabase.from("workouts").update(payload).eq("id", id);
   if (error) throw error;
 }
 
