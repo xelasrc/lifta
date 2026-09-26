@@ -151,7 +151,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         )}
 
         {!selected && (
-          <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pb-2 scrollbar-none">
+          <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto pb-2 scrollbar-none">
             {suggestions.map((exercise) => (
               <button
                 key={exercise.id}
@@ -180,14 +180,14 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
         <>
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold text-muted">
+              <p className="text-sm font-semibold text-heading">
                 {pendingDropParentId ? "Drop set weight (kg)" : "Weight (kg)"}
               </p>
               {pendingDropParentId && (
                 <button
                   type="button"
                   onClick={handleCancelDrop}
-                  className="text-xs font-semibold text-muted hover:text-white"
+                  className="text-xs font-semibold text-heading/70 hover:text-heading"
                 >
                   Cancel drop
                 </button>
@@ -198,7 +198,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 type="button"
                 onClick={() => setWeight((w) => Math.max(0, w - weightStepKg))}
                 aria-label={`Decrease weight by ${weightStepKg}`}
-                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-pill text-xs font-bold text-heading"
               >
                 -{weightStepKg}
               </button>
@@ -214,7 +214,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 type="button"
                 onClick={() => setWeight((w) => Math.min(300, w + weightStepKg))}
                 aria-label={`Increase weight by ${weightStepKg}`}
-                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-pill text-xs font-bold text-heading"
               >
                 +{weightStepKg}
               </button>
@@ -222,13 +222,13 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-semibold text-muted">Reps</p>
+            <p className="mb-2 text-sm font-semibold text-heading">Reps</p>
             <div className="flex items-center justify-center gap-5">
               <button
                 type="button"
                 onClick={() => setReps((r) => Math.max(0, r - repsStep))}
                 aria-label={`Decrease reps by ${repsStep}`}
-                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-pill text-xs font-bold text-heading"
               >
                 -{repsStep}
               </button>
@@ -237,7 +237,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 type="button"
                 onClick={() => setReps((r) => Math.min(50, r + repsStep))}
                 aria-label={`Increase reps by ${repsStep}`}
-                className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
+                className="flex h-15 w-11 items-center justify-center rounded-full bg-pill text-xs font-bold text-heading"
               >
                 +{repsStep}
               </button>

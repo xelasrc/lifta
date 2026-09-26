@@ -59,11 +59,11 @@ export default function HistoryPage() {
         <div className="relative border-b border-white/10 bg-background px-3 pt-8 pb-3">
           <h1 className="text-2xl font-bold text-heading">History</h1>
           <p className="mt-1 text-sm text-muted">Today · {today}</p>
-          <div className="pointer-events-none absolute inset-x-0 top-full h-20 bg-linear-to-b from-background/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-full h-20 bg-linear-to-b from-[var(--history-header-fade)] to-transparent" />
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 px-3">
+      <div className="flex flex-col gap-6 px-3 pt-4">
         {months === null && <div className="h-40 animate-pulse rounded-2xl bg-surface" />}
         {months?.length === 0 && <p className="text-sm text-heading/70">No workouts logged yet.</p>}
 

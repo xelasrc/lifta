@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 :root {
+  /* Without this, native form-control chrome (input placeholder opacity,
+     the date-input calendar icon, scrollbars, etc.) follows the browser's
+     own light/dark preference instead of this app's actual theme -- e.g. a
+     placeholder rendering with light-mode opacity/color choices even while
+     everything else here is dark. */
+  color-scheme: dark;
   --background: #000000;
   --background-image: none;
   --foreground: #ffffff;
@@ -30,9 +36,16 @@
      behind them to frost. */
   --glass-blur: none;
   --glass-border: transparent;
+  /* History's sticky header fades into the scrolled content below it --
+     works as a subtle dark shadow over the (also dark) page in dark mode,
+     but since it's keyed to --background, it turns into an unwanted bright
+     glow once --background flips to a light color in light mode. Disabled
+     there rather than following --background. */
+  --history-header-fade: rgba(0, 0, 0, 0.7);
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
   --background: #f2eef5;
   /* Figma exports this as a literal "195% 94% at 81% 9%" size, but its own
      export tool flags that as a rotated ellipse CSS can't represent -- taken
@@ -45,12 +58,23 @@
   --widget: rgba(255, 255, 255, 0.25);
   --pill: rgba(255, 255, 255, 0.25);
   --nav-surface: rgba(255, 255, 255, 0.35);
-  --exercise-stats-bg: rgba(77, 0, 6, 0.92);
+  /* The dark-maroon accent reads fine against dark mode's black backdrop,
+     but clashes as a hot, unrelated color against light mode's cool
+     lavender/purple gradient -- a rich violet in the same family as the
+     gradient's own mid-tone (#686797) and --surface (#22192a) instead,
+     which still gives the orange PR numbers strong contrast. */
+  --exercise-stats-bg: rgba(61, 34, 82, 0.92);
+  --history-header-fade: transparent;
   /* Figma's "Glass" layer effect (angle -45°, intensity 80%) on these same
      elements -- CSS has no directional-angle equivalent, but backdrop-filter
      blur + a saturation boost is the standard web approximation of frosted
      glass (the same technique behind iOS/macOS's actual glass material). */
-  --glass-blur: blur(20px) saturate(180%);
+  /* 20px bled visibly between closely-packed pills (e.g. the exercise
+     search results, only 8px apart) -- backdrop-filter samples from well
+     beyond the element's own edges, so tightly stacked glass pills produced
+     an overlapping/ghosted look. 8px keeps the frosted look without the
+     bleed. */
+  --glass-blur: blur(8px) saturate(180%);
   /* A hairline white rim around each glass surface, like light catching the
      edge of the glass -- bright along most of the perimeter, but tapering
      away to nothing right at the top-right and bottom-left corners (a

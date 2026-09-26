@@ -94,19 +94,19 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
                   onChange={(event) => setSplitDayDraft(event.target.value)}
                   onKeyDown={handleEditKeyDown}
                   placeholder="Split day (e.g. Push, Legs)"
-                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-heading outline-none"
+                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-heading placeholder-muted outline-none"
                 />
                 <input
                   type="date"
                   value={dateDraft}
                   onChange={(event) => setDateDraft(event.target.value)}
-                  className="w-fit rounded-lg border border-white/20 bg-background px-2 py-1 text-sm text-white outline-none"
+                  className="w-fit rounded-lg border border-white/20 bg-background px-2 py-1 text-sm text-heading outline-none"
                 />
               </div>
             ) : (
               <div>
                 <p className="text-2xl font-bold text-heading">{workout.title}</p>
-                <p className="text-sm text-muted">{new Date(workout.startedAt).toLocaleDateString()}</p>
+                <p className="text-sm text-heading/70">{new Date(workout.startedAt).toLocaleDateString()}</p>
               </div>
             )
           ) : (
@@ -130,7 +130,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
               type="button"
               onClick={editing ? commitEdit : startEditing}
               aria-label={editing ? "Save workout details" : "Edit workout details"}
-              className={editing ? "text-accent" : "text-muted hover:text-white"}
+              className={editing ? "text-accent" : "text-muted hover:text-heading"}
             >
               {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
             </button>
@@ -164,7 +164,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
           return (
             <div key={group.exercise?.id ?? group.sets[0]?.id} className="flex flex-col gap-3">
               <p className="font-semibold text-heading">{group.exercise?.name ?? "Exercise"}</p>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 {groupIntoChains(group.sets).map((chain, i) => {
                   const row = (
                     <>

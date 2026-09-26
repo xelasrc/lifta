@@ -225,7 +225,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
               type="button"
               onClick={editing ? commitEdit : startEditing}
               aria-label={editing ? "Save workout details" : "Edit workout details"}
-              className={editing ? "text-accent" : "text-muted hover:text-white"}
+              className={editing ? "text-accent" : "text-muted hover:text-heading"}
             >
               {editing ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
             </button>
@@ -242,7 +242,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
               onChange={(event) => setSplitDayDraft(event.target.value)}
               onKeyDown={handleEditKeyDown}
               placeholder="Split day (e.g. Push, Legs)"
-              className="min-w-0 flex-1 border-b border-white/20 bg-transparent pb-1 text-xl font-bold text-white outline-none"
+              className="min-w-0 flex-1 border-b border-white/20 bg-transparent pb-1 text-xl font-bold text-white placeholder-muted outline-none"
             />
           ) : (
             <p className="text-xl font-bold text-white">{workout.title}</p>
