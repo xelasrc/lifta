@@ -28,6 +28,20 @@ export async function getProfilesByIds(ids: string[]): Promise<Map<string, Profi
   return new Map((data ?? []).map(mapProfile).map((p) => [p.id, p]));
 }
 
+export async function getMyProfile(): Promise<Profile | undefined> {
+  const { supabase, user } = await requireUser();
+  const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+  return data ? mapProfile(data) : undefined;
+}
+
+// Not unique -- just a display name shown wherever an email would otherwise
+// be, defaulted to the email prefix at signup.
+export async function updateMyDisplayName(displayName: string): Promise<void> {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase.from("profiles").update({ display_name: displayName }).eq("id", user.id);
+  if (error) throw error;
+}
+
 export type FriendshipsOverview = {
   accepted: { friendship: Friendship; profile: Profile }[];
   incoming: { friendship: Friendship; profile: Profile }[];
