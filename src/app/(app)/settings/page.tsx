@@ -13,6 +13,8 @@ export default function SettingsPage() {
   const [defaultWeightKg, setDefaultWeightKg] = useState(DEFAULT_SETTINGS.defaultWeightKg);
   const [defaultReps, setDefaultReps] = useState(DEFAULT_SETTINGS.defaultReps);
   const [partialRepsEnabled, setPartialRepsEnabled] = useState(DEFAULT_SETTINGS.partialRepsEnabled);
+  const [weightStepKg, setWeightStepKg] = useState(DEFAULT_SETTINGS.weightStepKg);
+  const [repsStep, setRepsStep] = useState(DEFAULT_SETTINGS.repsStep);
   const [editingDefaults, setEditingDefaults] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,8 @@ export default function SettingsPage() {
     setDefaultWeightKg(settings.defaultWeightKg);
     setDefaultReps(settings.defaultReps);
     setPartialRepsEnabled(settings.partialRepsEnabled);
+    setWeightStepKg(settings.weightStepKg);
+    setRepsStep(settings.repsStep);
   }, []);
 
   function handleWeightChange(value: number) {
@@ -40,6 +44,16 @@ export default function SettingsPage() {
   function handlePartialRepsEnabledChange(value: boolean) {
     setPartialRepsEnabled(value);
     updateSettings({ partialRepsEnabled: value });
+  }
+
+  function handleWeightStepChange(value: number) {
+    setWeightStepKg(value);
+    updateSettings({ weightStepKg: value });
+  }
+
+  function handleRepsStepChange(value: number) {
+    setRepsStep(value);
+    updateSettings({ repsStep: value });
   }
 
   return (
@@ -101,6 +115,42 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        <div className="border-t border-white/10 pt-3">
+          <p className="text-xs text-muted">Quick-adjust step (the +/- buttons while logging a set)</p>
+          {editingDefaults ? (
+            <div className="mt-3 flex flex-col gap-3">
+              <Stepper
+                label="Weight step"
+                value={weightStepKg}
+                onChange={handleWeightStepChange}
+                min={0.5}
+                max={50}
+                step={0.5}
+                suffix="kg"
+              />
+              <Stepper
+                label="Reps step"
+                value={repsStep}
+                onChange={handleRepsStepChange}
+                min={1}
+                max={20}
+                step={1}
+              />
+            </div>
+          ) : (
+            <div className="mt-2 flex items-center gap-6">
+              <div>
+                <p className="text-xs text-muted">Weight</p>
+                <p className="font-semibold text-white">±{weightStepKg}kg</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted">Reps</p>
+                <p className="font-semibold text-white">±{repsStep}</p>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center justify-between border-t border-white/10 pt-3">
           <p className="text-sm text-white">Partial rep recording</p>

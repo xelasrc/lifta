@@ -4,12 +4,17 @@ export type Settings = {
   defaultWeightKg: number;
   defaultReps: number;
   partialRepsEnabled: boolean;
+  // The amount the quick +/- buttons jump by while logging a set.
+  weightStepKg: number;
+  repsStep: number;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
   defaultWeightKg: 20,
   defaultReps: 8,
   partialRepsEnabled: false,
+  weightStepKg: 5,
+  repsStep: 5,
 };
 
 export function getSettings(): Settings {

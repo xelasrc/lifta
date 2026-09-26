@@ -41,6 +41,8 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
   const [pendingDropParentId, setPendingDropParentId] = useState<string | null>(null);
   const [partialReps, setPartialReps] = useState(0);
   const [partialRepsEnabled, setPartialRepsEnabled] = useState(DEFAULT_SETTINGS.partialRepsEnabled);
+  const [weightStepKg, setWeightStepKg] = useState(DEFAULT_SETTINGS.weightStepKg);
+  const [repsStep, setRepsStep] = useState(DEFAULT_SETTINGS.repsStep);
 
   useEffect(() => {
     // localStorage isn't available during SSR, so the real settings must be
@@ -52,6 +54,8 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
     setWeight(settings.defaultWeightKg);
     setReps(settings.defaultReps);
     setPartialRepsEnabled(settings.partialRepsEnabled);
+    setWeightStepKg(settings.weightStepKg);
+    setRepsStep(settings.repsStep);
   }, []);
 
   useEffect(() => {
@@ -192,11 +196,11 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
             <div className="flex items-center justify-center gap-5">
               <button
                 type="button"
-                onClick={() => setWeight((w) => Math.max(0, w - 5))}
-                aria-label="Decrease weight by 5"
+                onClick={() => setWeight((w) => Math.max(0, w - weightStepKg))}
+                aria-label={`Decrease weight by ${weightStepKg}`}
                 className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
               >
-                -5
+                -{weightStepKg}
               </button>
               <NumberPicker
                 min={0}
@@ -208,11 +212,11 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
               />
               <button
                 type="button"
-                onClick={() => setWeight((w) => Math.min(300, w + 5))}
-                aria-label="Increase weight by 5"
+                onClick={() => setWeight((w) => Math.min(300, w + weightStepKg))}
+                aria-label={`Increase weight by ${weightStepKg}`}
                 className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
               >
-                +5
+                +{weightStepKg}
               </button>
             </div>
           </div>
@@ -222,20 +226,20 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
             <div className="flex items-center justify-center gap-5">
               <button
                 type="button"
-                onClick={() => setReps((r) => Math.max(0, r - 5))}
-                aria-label="Decrease reps by 5"
+                onClick={() => setReps((r) => Math.max(0, r - repsStep))}
+                aria-label={`Decrease reps by ${repsStep}`}
                 className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
               >
-                -5
+                -{repsStep}
               </button>
               <NumberPicker min={0} max={50} step={1} value={reps} onChange={setReps} />
               <button
                 type="button"
-                onClick={() => setReps((r) => Math.min(50, r + 5))}
-                aria-label="Increase reps by 5"
+                onClick={() => setReps((r) => Math.min(50, r + repsStep))}
+                aria-label={`Increase reps by ${repsStep}`}
                 className="flex h-15 w-11 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-muted"
               >
-                +5
+                +{repsStep}
               </button>
             </div>
           </div>
