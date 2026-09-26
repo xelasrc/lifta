@@ -130,11 +130,11 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
           type="button"
           onClick={() => router.push(`/workout/${workoutId}`)}
           aria-label="Back"
-          className="text-2xl font-bold text-white"
+          className="text-2xl font-bold text-heading"
         >
           &lsaquo;
         </button>
-        <h1 className="text-2xl font-bold text-white">{selected ? selected.name : "Exercise"}</h1>
+        <h1 className="text-2xl font-bold text-heading">{selected ? selected.name : "Exercise"}</h1>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -146,7 +146,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
               setSelected(null);
             }}
             placeholder="Search..."
-            className="rounded-full bg-[#232323] px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+            className="rounded-full bg-pill px-5 py-4 text-heading placeholder-muted outline-none focus:ring-2 focus:ring-accent"
           />
         )}
 
@@ -157,7 +157,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
                 key={exercise.id}
                 type="button"
                 onClick={() => handleSelect(exercise)}
-                className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4 text-left text-white"
+                className="flex items-center justify-between rounded-full bg-pill px-5 py-4 text-left text-heading"
               >
                 {exercise.name}
                 <span className="text-accent">&rsaquo;</span>
@@ -167,7 +167,7 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
               <button
                 type="button"
                 onClick={handleAddCustom}
-                className="rounded-full bg-[#232323] px-5 py-4 text-left font-semibold text-accent"
+                className="rounded-full bg-pill px-5 py-4 text-left font-semibold text-accent"
               >
                 + Add &quot;{query}&quot; as new exercise
               </button>

@@ -49,10 +49,10 @@ export default function MyExercisesPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
-        <Link href="/settings" aria-label="Back to settings" className="text-2xl font-bold text-white">
+        <Link href="/settings" aria-label="Back to settings" className="text-2xl font-bold text-heading">
           &lsaquo;
         </Link>
-        <h1 className="text-2xl font-bold text-white">My Exercises</h1>
+        <h1 className="text-2xl font-bold text-heading">My Exercises</h1>
       </div>
 
       <form onSubmit={handleAdd} className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export default function MyExercisesPage() {
           value={newName}
           onChange={(event) => setNewName(event.target.value)}
           placeholder="New exercise name"
-          className="flex-1 rounded-full bg-[#232323] px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+          className="flex-1 rounded-full bg-pill px-5 py-4 text-heading placeholder-muted outline-none focus:ring-2 focus:ring-accent"
         />
         <button
           type="submit"
@@ -88,9 +88,9 @@ export default function MyExercisesPage() {
         {exercises?.map((exercise) => (
           <div
             key={exercise.id}
-            className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+            className="flex items-center justify-between rounded-full bg-pill px-5 py-4"
           >
-            <span className="text-white">{exercise.name}</span>
+            <span className="text-heading">{exercise.name}</span>
             <button
               type="button"
               onClick={() => handleDelete(exercise)}

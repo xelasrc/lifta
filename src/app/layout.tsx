@@ -35,7 +35,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-lvh antialiased`}
+      // The theme script below sets data-theme on this element before React
+      // hydrates (to avoid a flash of the wrong theme), which the server
+      // markup can't know about in advance -- expected, not a real mismatch.
+      suppressHydrationWarning
     >
+      <head>
+        {/* Blocking (not deferred) so the theme is set before first paint --
+            otherwise a light-mode user would see a flash of dark mode. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var s=JSON.parse(localStorage.getItem("lifta:settings")||"{}");if(s.theme==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();',
+          }}
+        />
+      </head>
       <body className="flex h-lvh flex-col overflow-y-auto pt-[env(safe-area-inset-top)]">
         {children}
       </body>

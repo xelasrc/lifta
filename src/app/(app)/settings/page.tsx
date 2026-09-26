@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import { DEFAULT_SETTINGS, getSettings, updateSettings } from "@/lib/settings";
+import { DEFAULT_SETTINGS, getSettings, updateSettings, type Theme } from "@/lib/settings";
 import { PencilIcon } from "@/components/icons/pencil-icon";
 import { CheckIcon } from "@/components/icons/check-icon";
 import { Stepper } from "@/components/stepper";
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [weightStepKg, setWeightStepKg] = useState(DEFAULT_SETTINGS.weightStepKg);
   const [repsStep, setRepsStep] = useState(DEFAULT_SETTINGS.repsStep);
   const [editingDefaults, setEditingDefaults] = useState(false);
+  const [theme, setTheme] = useState<Theme>(DEFAULT_SETTINGS.theme);
 
   useEffect(() => {
     // localStorage isn't available during SSR, so the real settings must be
@@ -29,7 +30,14 @@ export default function SettingsPage() {
     setPartialRepsEnabled(settings.partialRepsEnabled);
     setWeightStepKg(settings.weightStepKg);
     setRepsStep(settings.repsStep);
+    setTheme(settings.theme);
   }, []);
+
+  function handleThemeChange(light: boolean) {
+    const next: Theme = light ? "light" : "dark";
+    setTheme(next);
+    updateSettings({ theme: next });
+  }
 
   function handleWeightChange(value: number) {
     setDefaultWeightKg(value);
@@ -59,10 +67,15 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
-        <Link href="/" aria-label="Back to home" className="text-2xl font-bold text-white">
+        <Link href="/" aria-label="Back to home" className="text-2xl font-bold text-heading">
           &lsaquo;
         </Link>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
+        <h1 className="text-2xl font-bold text-heading">Settings</h1>
+      </div>
+
+      <div className="flex items-center justify-between rounded-2xl bg-surface p-5">
+        <p className="text-sm font-semibold text-white">Light mode</p>
+        <ToggleSwitch checked={theme === "light"} onChange={handleThemeChange} label="Light mode" />
       </div>
 
       <div className="flex flex-col gap-4 rounded-2xl bg-surface p-5">

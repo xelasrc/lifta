@@ -14,19 +14,19 @@ export function RecentWorkoutsList() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-base font-medium text-white">Recent Workouts</p>
+      <p className="text-base font-medium text-heading">Recent Workouts</p>
 
       {workouts === null && <div className="h-16 animate-pulse rounded-full bg-surface" />}
 
       {workouts?.length === 0 && (
-        <p className="text-sm text-muted">Nothing logged yet — start your first workout above.</p>
+        <p className="text-sm text-heading/70">Nothing logged yet — start your first workout above.</p>
       )}
 
       {workouts?.map((workout) => (
         <Link
           key={workout.id}
           href={`/history/workout/${workout.id}`}
-          className="flex items-center justify-between gap-3 rounded-full border border-accent px-5 py-4"
+          className="flex items-center justify-between gap-3 rounded-full bg-surface px-5 py-4"
         >
           <div className="flex items-center gap-4">
             <span className="text-sm font-semibold text-white">
@@ -38,11 +38,7 @@ export function RecentWorkoutsList() {
             </span>
             <p className="text-sm font-medium text-white">{workout.title}</p>
           </div>
-          <span aria-hidden className="flex text-lg font-bold leading-none">
-            <span className="text-white">&rsaquo;</span>
-            <span className="text-white/60">&rsaquo;</span>
-            <span className="text-white/30">&rsaquo;</span>
-          </span>
+          <span className="text-accent">&rsaquo;</span>
         </Link>
       ))}
     </div>

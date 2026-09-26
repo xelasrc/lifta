@@ -91,7 +91,7 @@ export function ExerciseStatsPanel({
   const groups = groupByWorkout(previousSets).slice(0, 1);
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-[#4d0006]/50 p-4">
+    <div className="flex flex-col gap-3 rounded-2xl bg-exercise-stats-bg p-4">
       <div className="flex items-center gap-2">
         <ChartIcon className="h-4 w-4 text-accent" />
         <p className="text-sm font-semibold text-muted">Exercise Stats</p>

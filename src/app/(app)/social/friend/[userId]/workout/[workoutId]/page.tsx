@@ -44,12 +44,12 @@ export default function FriendWorkoutDetailPage(
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-center gap-3">
-        <Link href={`/social/friend/${userId}`} aria-label="Back" className="text-2xl font-bold text-white">
+        <Link href={`/social/friend/${userId}`} aria-label="Back" className="text-2xl font-bold text-heading">
           &lsaquo;
         </Link>
         <div>
           <p className="text-sm font-semibold text-muted">{profile?.displayName ?? profile?.email ?? "…"}</p>
-          <h1 className="text-2xl font-bold text-white">{workout.title}</h1>
+          <h1 className="text-2xl font-bold text-heading">{workout.title}</h1>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export default function FriendWorkoutDetailPage(
 
       {cardioActivities.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Cardio</p>
+          <p className="text-sm font-semibold text-heading/70">Cardio</p>
           {cardioActivities.map((activity) => (
             <CardioActivityCard
               key={activity.id}
@@ -80,7 +80,7 @@ export default function FriendWorkoutDetailPage(
 
       {groups.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Sets</p>
+          <p className="text-sm font-semibold text-heading/70">Sets</p>
           {groups.map((group) => (
             <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
               <p className="border-b border-white/10 pb-3 font-semibold text-white">

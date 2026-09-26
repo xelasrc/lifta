@@ -117,10 +117,10 @@ export default function SocialProfilePage() {
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
-        <Link href="/social" aria-label="Back to social" className="text-2xl font-bold text-white">
+        <Link href="/social" aria-label="Back to social" className="text-2xl font-bold text-heading">
           &lsaquo;
         </Link>
-        <h1 className="text-2xl font-bold text-white">Profile</h1>
+        <h1 className="text-2xl font-bold text-heading">Profile</h1>
       </div>
 
       <div className="flex flex-col items-center gap-3 rounded-2xl bg-surface p-6">

@@ -97,10 +97,10 @@ export function ExerciseStatsView({ exerciseId, backHref }: { exerciseId: string
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-center gap-3">
-        <Link href={backHref} aria-label="Back" className="text-2xl font-bold text-white">
+        <Link href={backHref} aria-label="Back" className="text-2xl font-bold text-heading">
           &lsaquo;
         </Link>
-        <h1 className="text-2xl font-bold text-white">{exercise?.name ?? "Exercise"}</h1>
+        <h1 className="text-2xl font-bold text-heading">{exercise?.name ?? "Exercise"}</h1>
       </div>
 
       {sets === null ? (

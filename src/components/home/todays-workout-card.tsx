@@ -76,7 +76,7 @@ export function TodaysWorkoutCard() {
   return (
     <div className="flex flex-col gap-4">
       {workout || completedToday.length > 0 ? (
-        <div className="flex flex-col gap-3 rounded-2xl bg-surface p-5">
+        <div className="flex flex-col gap-3 rounded-2xl bg-widget p-5">
           {completedToday.length > 0 && (
             <div className="flex flex-col gap-3">
               <p className="text-sm font-semibold text-muted">Today&apos;s Workouts</p>
@@ -92,7 +92,7 @@ export function TodaysWorkoutCard() {
                   <Link
                     key={w.id}
                     href={`/history/workout/${w.id}`}
-                    className="flex items-center justify-between gap-3 rounded-xl py-1 text-white hover:text-accent"
+                    className="flex items-center justify-between gap-3 rounded-xl py-1 text-heading hover:text-accent"
                   >
                     <div className="flex items-start gap-2">
                       <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-accent" />
@@ -110,7 +110,7 @@ export function TodaysWorkoutCard() {
           {workout && (
             <div className={completedToday.length > 0 ? "mt-1 border-t border-white/10 pt-3" : ""}>
               <p className="text-sm font-semibold text-muted">In Progress</p>
-              <div className="mt-2 flex items-start gap-2 py-1 text-white">
+              <div className="mt-2 flex items-start gap-2 py-1 text-heading">
                 <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center">
                   <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-accent" />
                 </span>
@@ -126,7 +126,7 @@ export function TodaysWorkoutCard() {
           )}
         </div>
       ) : (
-        <div className="min-h-30 rounded-2xl bg-surface p-5">
+        <div className="min-h-30 rounded-2xl bg-widget p-5">
           <p className="text-sm font-semibold text-muted">No workout yet today</p>
         </div>
       )}

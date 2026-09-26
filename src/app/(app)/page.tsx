@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-1 flex-col gap-8 px-3 pt-8">
       <div className="relative flex items-center justify-center">
-        <Link href="/settings" aria-label="Settings" className="absolute left-0 text-white">
+        <Link href="/settings" aria-label="Settings" className="absolute left-0 text-heading">
           <SettingsIcon className="h-6 w-6" />
         </Link>
         <Greeting />

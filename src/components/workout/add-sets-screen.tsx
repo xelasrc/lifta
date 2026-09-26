@@ -81,7 +81,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <Link href="/" aria-label="Back to home" className="pt-1 text-2xl font-bold text-white">
+          <Link href="/" aria-label="Back to home" className="pt-1 text-2xl font-bold text-heading">
             &lsaquo;
           </Link>
 
@@ -94,7 +94,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
                   onChange={(event) => setSplitDayDraft(event.target.value)}
                   onKeyDown={handleEditKeyDown}
                   placeholder="Split day (e.g. Push, Legs)"
-                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-white outline-none"
+                  className="border-b border-white/20 bg-transparent pb-1 text-2xl font-bold text-heading outline-none"
                 />
                 <input
                   type="date"
@@ -105,7 +105,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
               </div>
             ) : (
               <div>
-                <p className="text-2xl font-bold text-white">{workout.title}</p>
+                <p className="text-2xl font-bold text-heading">{workout.title}</p>
                 <p className="text-sm text-muted">{new Date(workout.startedAt).toLocaleDateString()}</p>
               </div>
             )
@@ -141,7 +141,7 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
       <button
         type="button"
         onClick={() => router.push(`/workout/${workoutId}/new-set`)}
-        className="flex h-44 items-center justify-center rounded-2xl bg-surface text-accent"
+        className="flex h-44 items-center justify-center rounded-2xl bg-widget text-accent"
         aria-label="Add set"
       >
         <span className="text-4xl leading-none">+</span>
@@ -153,24 +153,24 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
       />
 
       <div className="flex flex-col gap-6">
-        <p className="text-sm font-semibold text-muted">Sets</p>
+        <p className="text-sm font-semibold text-heading/70">Sets</p>
 
         {groups === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
 
-        {groups?.length === 0 && <p className="text-sm text-muted">No sets logged yet.</p>}
+        {groups?.length === 0 && <p className="text-sm text-heading/70">No sets logged yet.</p>}
 
         {groups?.map((group) => {
           const exerciseHref = group.exercise ? `/workout/${workoutId}/exercise/${group.exercise.id}` : null;
           return (
             <div key={group.exercise?.id ?? group.sets[0]?.id} className="flex flex-col gap-3">
-              <p className="font-semibold text-white">{group.exercise?.name ?? "Exercise"}</p>
+              <p className="font-semibold text-heading">{group.exercise?.name ?? "Exercise"}</p>
               <div className="flex flex-col gap-2">
                 {groupIntoChains(group.sets).map((chain, i) => {
                   const row = (
                     <>
-                      <span className="text-sm text-white">set {i + 1}</span>
+                      <span className="text-sm text-heading">set {i + 1}</span>
                       <span className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white/90">
+                        <span className="text-sm font-semibold text-heading/90">
                           {chain.parent.reps} x {chain.parent.weightKg ?? 0}kg
                         </span>
                         {exerciseHref && <span className="text-accent">&rsaquo;</span>}
@@ -181,14 +181,14 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
                     <Link
                       key={chain.parent.id}
                       href={exerciseHref}
-                      className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+                      className="flex items-center justify-between rounded-full bg-pill px-5 py-4"
                     >
                       {row}
                     </Link>
                   ) : (
                     <div
                       key={chain.parent.id}
-                      className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+                      className="flex items-center justify-between rounded-full bg-pill px-5 py-4"
                     >
                       {row}
                     </div>
@@ -201,11 +201,11 @@ export function AddSetsScreen({ workoutId }: { workoutId: string }) {
       </div>
 
       <div className="flex flex-col gap-6">
-        <p className="text-sm font-semibold text-muted">Cardio</p>
+        <p className="text-sm font-semibold text-heading/70">Cardio</p>
 
         {cardioActivities === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
 
-        {cardioActivities?.length === 0 && <p className="text-sm text-muted">No cardio logged yet.</p>}
+        {cardioActivities?.length === 0 && <p className="text-sm text-heading/70">No cardio logged yet.</p>}
 
         {cardioActivities?.map((activity) => (
           <CardioActivityCard

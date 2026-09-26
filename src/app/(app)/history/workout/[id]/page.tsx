@@ -205,10 +205,10 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/history" aria-label="Back" className="text-2xl font-bold text-white">
+          <Link href="/history" aria-label="Back" className="text-2xl font-bold text-heading">
             &lsaquo;
           </Link>
-          <h1 className="text-2xl font-bold text-white">History</h1>
+          <h1 className="text-2xl font-bold text-heading">History</h1>
         </div>
         {isOwner && (
           <div className="flex items-center gap-4">
@@ -267,7 +267,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
         <button
           type="button"
           onClick={() => router.push(`/workout/${id}/new-set`)}
-          className="flex h-32 items-center justify-center rounded-2xl bg-surface text-accent"
+          className="flex h-32 items-center justify-center rounded-2xl bg-widget text-accent"
           aria-label="Add set"
         >
           <span className="text-4xl leading-none">+</span>
@@ -283,7 +283,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
       {cardioActivities.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Cardio</p>
+          <p className="text-sm font-semibold text-heading/70">Cardio</p>
           {cardioActivities.map((activity) => (
             <CardioActivityCard
               key={activity.id}
@@ -300,7 +300,7 @@ export default function HistoryWorkoutPage(props: PageProps<"/history/workout/[i
 
       {groups.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Sets</p>
+          <p className="text-sm font-semibold text-heading/70">Sets</p>
           {groups.map((group) => (
             <div key={group.exercise?.id ?? group.sets[0]?.id} className="rounded-2xl bg-surface p-4">
               {group.exercise ? (

@@ -30,7 +30,7 @@ export function Greeting() {
 
   return (
     <div className="text-center">
-      <p className="text-2xl font-semibold text-white">Good {timeOfDay}</p>
+      <p className="text-2xl font-semibold text-heading">Good {timeOfDay}</p>
       <p className="text-lg font-normal text-accent">{name}!</p>
     </div>
   );

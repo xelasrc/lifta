@@ -21,7 +21,7 @@ export default function StatsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-8 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">Stats</h1>
+      <h1 className="text-2xl font-bold text-heading">Stats</h1>
 
       {summary === null ? (
         <div className="h-24 animate-pulse rounded-2xl bg-surface" />
@@ -34,7 +34,7 @@ export default function StatsPage() {
       )}
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-semibold text-muted">Exercises</p>
+        <p className="text-sm font-semibold text-heading/70">Exercises</p>
 
         <input
           value={query}
@@ -44,7 +44,7 @@ export default function StatsPage() {
         />
 
         {exercises === null && <div className="h-16 animate-pulse rounded-2xl bg-surface" />}
-        {exercises?.length === 0 && <p className="text-sm text-muted">No exercises found.</p>}
+        {exercises?.length === 0 && <p className="text-sm text-heading/70">No exercises found.</p>}
 
         {exercises && exercises.length > 0 && (
           <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-2xl bg-surface p-2 scrollbar-none">

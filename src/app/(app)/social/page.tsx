@@ -70,7 +70,7 @@ export default function SocialPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8">
-      <h1 className="text-2xl font-bold text-white">Social</h1>
+      <h1 className="text-2xl font-bold text-heading">Social</h1>
 
       <Link href="/social/profile" className="flex items-center justify-between rounded-2xl bg-surface p-5">
         <div className="flex items-center gap-3">
@@ -86,14 +86,14 @@ export default function SocialPage() {
       </Link>
 
       <form onSubmit={handleAddFriend} className="flex flex-col gap-2">
-        <p className="text-sm font-semibold text-muted">Add a friend</p>
+        <p className="text-sm font-semibold text-heading/70">Add a friend</p>
         <div className="flex items-center gap-2">
           <input
             value={addEmail}
             onChange={(event) => setAddEmail(event.target.value)}
             type="email"
             placeholder="Friend's email"
-            className="flex-1 rounded-full bg-[#232323] px-5 py-4 text-white placeholder-muted outline-none focus:ring-2 focus:ring-accent"
+            className="flex-1 rounded-full bg-pill px-5 py-4 text-heading placeholder-muted outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="submit"
@@ -110,13 +110,13 @@ export default function SocialPage() {
 
       {loaded && overview.incoming.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Friend requests</p>
+          <p className="text-sm font-semibold text-heading/70">Friend requests</p>
           {overview.incoming.map(({ friendship, profile }) => (
             <div
               key={friendship.id}
-              className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+              className="flex items-center justify-between rounded-full bg-pill px-5 py-4"
             >
-              <span className="text-white">{profile.displayName ?? profile.email}</span>
+              <span className="text-heading">{profile.displayName ?? profile.email}</span>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -142,13 +142,13 @@ export default function SocialPage() {
 
       {loaded && overview.outgoing.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-muted">Pending</p>
+          <p className="text-sm font-semibold text-heading/70">Pending</p>
           {overview.outgoing.map(({ friendship, profile }) => (
             <div
               key={friendship.id}
-              className="flex items-center justify-between rounded-full bg-[#232323] px-5 py-4"
+              className="flex items-center justify-between rounded-full bg-pill px-5 py-4"
             >
-              <span className="text-white">{profile.displayName ?? profile.email}</span>
+              <span className="text-heading">{profile.displayName ?? profile.email}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(friendship.id)}
@@ -163,7 +163,7 @@ export default function SocialPage() {
       )}
 
       <div className="flex flex-col gap-3">
-        <p className="text-sm font-semibold text-muted">Friends</p>
+        <p className="text-sm font-semibold text-heading/70">Friends</p>
         {loaded && overview.accepted.length === 0 && (
           <div className="rounded-2xl bg-surface p-5 text-center">
             <p className="text-sm text-muted">No friends yet. Add someone above to see their workouts here.</p>
@@ -172,10 +172,10 @@ export default function SocialPage() {
         {overview.accepted.map(({ friendship, profile }) => (
           <div
             key={friendship.id}
-            className="flex items-center justify-between gap-3 rounded-full bg-[#232323] px-5 py-4"
+            className="flex items-center justify-between gap-3 rounded-full bg-pill px-5 py-4"
           >
             <Link href={`/social/friend/${profile.id}`} className="flex flex-1 items-center justify-between">
-              <span className="text-white">{profile.displayName ?? profile.email}</span>
+              <span className="text-heading">{profile.displayName ?? profile.email}</span>
               <span className="text-accent">&rsaquo;</span>
             </Link>
             <button

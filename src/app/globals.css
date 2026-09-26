@@ -2,26 +2,114 @@
 
 :root {
   --background: #000000;
+  --background-image: none;
   --foreground: #ffffff;
+  /* Page-title text (the header next to a back chevron) -- its own token
+     because in light mode it sits directly on the light end of the page
+     gradient and needs to go dark, while ordinary white text elsewhere
+     (on the still-dark --surface cards) doesn't change. */
+  --heading: #ffffff;
+  /* Solid pill/card fill (recent workouts, sets list, generic cards) --
+     unchanged between themes per the Figma light mock, which keeps these
+     the same dark purple regardless of theme. */
   --surface: #22192a;
+  /* The "Widget Info"-style summary/placeholder box (Today's Workout card,
+     the add-exercise "+" tile) -- goes translucent-glass in light mode. */
+  --widget: #22192a;
+  /* Secondary interactive rows/inputs (exercise search, friend rows, etc.),
+     previously hardcoded as #232323 -- same glass treatment as --widget. */
+  --pill: #232323;
+  --nav-surface: #191919;
   --accent: #fe4c00;
   --muted: #85798f;
+  /* Exercise Stats panel -- translucent so it blends with whatever's behind
+     it, which is fine over solid black but washes out the white text inside
+     once that backdrop turns light, so light mode needs a near-opaque fill. */
+  --exercise-stats-bg: rgba(77, 0, 6, 0.5);
+  /* No blur in dark mode -- these are solid opaque fills there, nothing
+     behind them to frost. */
+  --glass-blur: none;
+  --glass-border: transparent;
+}
+
+:root[data-theme="light"] {
+  --background: #f2eef5;
+  /* Figma exports this as a literal "195% 94% at 81% 9%" size, but its own
+     export tool flags that as a rotated ellipse CSS can't represent -- taken
+     literally, the ellipse is so much larger than the viewport that only its
+     near-center color would ever be visible (i.e. no visible gradient at
+     all). farthest-corner instead guarantees the full 0%/75%/98% stop range
+     actually renders across the box, reaching #22192a at the bottom-left. */
+  --background-image: radial-gradient(ellipse farthest-corner at 81% 9%, #f2eef5 0%, #686797 75%, #22192a 98%);
+  --heading: #232323;
+  --widget: rgba(255, 255, 255, 0.25);
+  --pill: rgba(255, 255, 255, 0.25);
+  --nav-surface: rgba(255, 255, 255, 0.35);
+  --exercise-stats-bg: rgba(77, 0, 6, 0.92);
+  /* Figma's "Glass" layer effect (angle -45°, intensity 80%) on these same
+     elements -- CSS has no directional-angle equivalent, but backdrop-filter
+     blur + a saturation boost is the standard web approximation of frosted
+     glass (the same technique behind iOS/macOS's actual glass material). */
+  --glass-blur: blur(20px) saturate(180%);
+  /* A hairline white rim around each glass surface, like light catching the
+     edge of the glass -- bright along most of the perimeter, but tapering
+     away to nothing right at the top-right and bottom-left corners (a
+     conic-gradient sweep, so it thins out approaching each gap rather than
+     cutting off abruptly). */
+  --glass-border: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.85) 0deg,
+    rgba(255, 255, 255, 0.85) 10deg,
+    rgba(255, 255, 255, 0) 40deg,
+    rgba(255, 255, 255, 0) 60deg,
+    rgba(255, 255, 255, 0.85) 90deg,
+    rgba(255, 255, 255, 0.85) 180deg,
+    rgba(255, 255, 255, 0.85) 190deg,
+    rgba(255, 255, 255, 0) 220deg,
+    rgba(255, 255, 255, 0) 240deg,
+    rgba(255, 255, 255, 0.85) 270deg,
+    rgba(255, 255, 255, 0.85) 360deg
+  );
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-heading: var(--heading);
   --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
+  --color-exercise-stats-bg: var(--exercise-stats-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
+  position: relative;
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The page backdrop, as a fixed-position layer rather than a background on
+   body itself. Two things that look equivalent aren't:
+   - `background-attachment: fixed` on body doesn't reliably work here, since
+     body is its own scroll container (h-lvh + overflow-y-auto) rather than
+     the document scrolling normally -- iOS Safari is known to ignore a fixed
+     background in exactly that setup.
+   - Without `fixed`, the image is only ever sized to one viewport's height,
+     so on any page taller than that (e.g. Stats with a long exercise list)
+     the default `background-repeat` tiles it, producing a visible seam/repeat
+     partway down.
+   A `position: fixed` element sidesteps both: it's a real box (not a
+   background-attachment value), pinned to the viewport, sized to it exactly,
+   so there's nothing to repeat and content simply scrolls over it. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--background);
+  background-image: var(--background-image);
 }
 
 /* Same accent orange, with a white inner-shadow highlight tucked into the
@@ -31,4 +119,61 @@ body {
 @utility bg-accent-gradient {
   background-color: var(--accent);
   box-shadow: inset 3px 3px 3px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* The "Widget Info"-style summary/placeholder box (Today's Workout card, the
+   add-exercise "+" tile) -- solid dark purple in dark mode, frosted glass
+   over the page gradient in light mode. */
+@utility bg-widget {
+  position: relative;
+  background-color: var(--widget);
+  backdrop-filter: var(--glass-blur);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 0.5px;
+    background: var(--glass-border);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Secondary interactive rows/inputs (exercise search, friend rows, etc.) --
+   same glass treatment as bg-widget. */
+@utility bg-pill {
+  position: relative;
+  background-color: var(--pill);
+  backdrop-filter: var(--glass-blur);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 0.5px;
+    background: var(--glass-border);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Nav bar and the slide-to-start track. */
+@utility bg-nav-surface {
+  position: relative;
+  background-color: var(--nav-surface);
+  backdrop-filter: var(--glass-blur);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 0.5px;
+    background: var(--glass-border);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 }
