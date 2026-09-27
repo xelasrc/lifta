@@ -70,13 +70,13 @@ export function TodaysWorkoutCard() {
   }
 
   if (!loaded) {
-    return <div className="h-40 animate-pulse rounded-2xl bg-surface" />;
+    return <div className="mx-1.5 h-40 animate-pulse rounded-2xl bg-surface" />;
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       {workout || completedToday.length > 0 ? (
-        <div className="flex flex-col gap-3 rounded-2xl bg-widget p-5">
+        <div className="mx-1.5 flex flex-col gap-3 rounded-2xl bg-widget p-5">
           {completedToday.length > 0 && (
             <div className="flex flex-col gap-3">
               <p className="text-sm font-semibold text-muted">Today&apos;s Workouts</p>
@@ -126,7 +126,7 @@ export function TodaysWorkoutCard() {
           )}
         </div>
       ) : (
-        <div className="min-h-30 rounded-2xl bg-widget p-5">
+        <div className="mx-1.5 min-h-30 rounded-2xl bg-widget p-5">
           <p className="text-sm font-semibold text-muted">No workout yet today</p>
         </div>
       )}
@@ -135,7 +135,7 @@ export function TodaysWorkoutCard() {
           type="button"
           onClick={handleStart}
           disabled={starting}
-          className="flex h-18 items-center justify-center rounded-full bg-accent-gradient font-bold text-white disabled:opacity-60"
+          className="flex h-20 items-center justify-center rounded-full bg-accent-gradient font-bold text-white disabled:opacity-60"
         >
           Continue
         </button>

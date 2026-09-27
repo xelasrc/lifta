@@ -7,10 +7,10 @@ import { SettingsIcon } from "@/components/icons/settings-icon";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-1 flex-col gap-8 px-3 pt-8">
-      <div className="relative flex items-center justify-center">
-        <Link href="/settings" aria-label="Settings" className="absolute left-0 text-heading">
-          <SettingsIcon className="h-6 w-6" />
+    <div className="flex flex-1 flex-col gap-10 px-5 pt-2">
+      <div className="flex flex-col gap-6">
+        <Link href="/settings" aria-label="Settings" className="text-accent">
+          <SettingsIcon className="h-7 w-7" />
         </Link>
         <Greeting />
       </div>

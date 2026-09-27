@@ -68,7 +68,7 @@ export function SlideToStart({
   return (
     <div
       ref={trackRef}
-      className={`relative h-18 overflow-hidden rounded-full bg-nav-surface ${disabled ? "opacity-60" : ""}`}
+      className={`relative h-20 overflow-hidden rounded-full bg-pill ${disabled ? "opacity-60" : ""}`}
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-end gap-1 pr-8">
         {[0, 1, 2].map((i) => (
