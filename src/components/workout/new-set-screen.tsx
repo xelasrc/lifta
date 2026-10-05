@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createSet, deleteSet } from "@/lib/db/sets";
-import { createExercise, searchExercises } from "@/lib/db/exercises";
+import { createSet, deleteSet, listSetsForWorkout } from "@/lib/db/sets";
+import { createExercise, getExercise, searchExercises } from "@/lib/db/exercises";
 import { groupIntoChains } from "@/lib/db/set-chains";
 import type { Exercise, WorkoutSet } from "@/lib/db/types";
 import { NumberPicker } from "@/components/workout/number-picker";
@@ -27,7 +27,16 @@ function collectDescendantIds(sets: WorkoutSet[], rootId: string): Set<string> {
   return ids;
 }
 
-export function NewSetScreen({ workoutId }: { workoutId: string }) {
+export function NewSetScreen({
+  workoutId,
+  initialExerciseId,
+}: {
+  workoutId: string;
+  // Set when arriving from "add/edit sets" on an exercise already logged in
+  // this workout -- jumps straight past the search step with its existing
+  // sets preloaded, so they show up in "Logged for X" alongside new ones.
+  initialExerciseId?: string;
+}) {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -63,6 +72,21 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
     searchExercises(query).then(setSuggestions);
   }, [query, selected]);
 
+  useEffect(() => {
+    if (!initialExerciseId) return;
+    Promise.all([getExercise(initialExerciseId), listSetsForWorkout(workoutId)]).then(
+      ([exercise, allSets]) => {
+        if (!exercise) return;
+        setSelected(exercise);
+        setQuery(exercise.name);
+        setSuggestions([]);
+        setLoggedSets(allSets.filter((s) => s.exerciseId === initialExerciseId));
+        setPendingDropParentId(null);
+        setPartialReps(0);
+      },
+    );
+  }, [initialExerciseId, workoutId]);
+
   function handleSelect(exercise: Exercise) {
     setSelected(exercise);
     setQuery(exercise.name);
@@ -70,6 +94,23 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
     setLoggedSets([]);
     setPendingDropParentId(null);
     setPartialReps(0);
+  }
+
+  function handleNextExercise() {
+    // Resets state directly rather than relying on navigation -- pushing to
+    // the same /new-set URL we're already on (the common case, since this
+    // button only needs the plain search route) wouldn't remount the
+    // component or clear anything. Only navigate when arriving from the
+    // exercise-specific route, so the URL stops pointing at the old exercise.
+    setSelected(null);
+    setQuery("");
+    setSuggestions([]);
+    setLoggedSets([]);
+    setPendingDropParentId(null);
+    setPartialReps(0);
+    if (initialExerciseId) {
+      router.push(`/workout/${workoutId}/new-set`);
+    }
   }
 
   async function handleAddCustom() {
@@ -125,16 +166,26 @@ export function NewSetScreen({ workoutId }: { workoutId: string }) {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-3 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => router.push(`/workout/${workoutId}`)}
           aria-label="Back"
-          className="text-2xl font-bold text-heading"
+          className="flex min-w-0 items-center gap-3 text-left"
         >
-          &lsaquo;
+          <span className="shrink-0 text-2xl font-bold text-heading">&lsaquo;</span>
+          <h1 className="truncate text-2xl font-bold text-heading">{selected ? selected.name : "Exercise"}</h1>
         </button>
-        <h1 className="text-2xl font-bold text-heading">{selected ? selected.name : "Exercise"}</h1>
+
+        {selected && loggedSets.length > 0 && (
+          <button
+            type="button"
+            onClick={handleNextExercise}
+            className="shrink-0 rounded-full bg-pill px-4 py-2 text-sm font-semibold text-accent"
+          >
+            Next Exercise &rsaquo;
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
